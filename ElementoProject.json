@@ -1,0 +1,169 @@
+{
+  "id": "project_1",
+  "name": "Photo Jigsaw",
+  "properties": {},
+  "elements": [
+    {
+      "id": "app_1",
+      "name": "Main App",
+      "properties": {},
+      "elements": [
+        {
+          "id": "page_1",
+          "name": "Main Page",
+          "properties": {},
+          "elements": [
+            {
+              "id": "text_1",
+              "name": "Title",
+              "properties": {
+                "content": "Photo Jigsaw",
+                "styles": {
+                  "fontSize": 24,
+                  "fontFamily": "Impact",
+                  "color": "Orange",
+                  "letterSpacing": "2px"
+                }
+              },
+              "kind": "Text"
+            },
+            {
+              "id": "data_2",
+              "name": "Width",
+              "properties": {
+                "initialValue": "5"
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "data_3",
+              "name": "Height",
+              "properties": {
+                "initialValue": "5"
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "data_1",
+              "name": "Pieces",
+              "properties": {
+                "initialValue": {
+                  "expr": "Range(0, Width * Height - 1)"
+                },
+                "display": true
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "data_4",
+              "name": "Selected 1",
+              "properties": {
+                "initialValue": {
+                  "expr": "null"
+                },
+                "display": true
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "function_1",
+              "name": "Swap Selected",
+              "properties": {
+                "calculation": {
+                  "expr": "let piece1 = ItemAt(Pieces, Selected1)\nlet piece2 = ItemAt(Pieces, selected2)\nUpdate(Pieces, {[Selected1.value]: piece2, [selected2]: piece1})\nReset(Selected1)\n"
+                },
+                "input1": "selected2"
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "image_1",
+              "name": "Image 1",
+              "properties": {
+                "source": "Car1.jpg",
+                "show": false
+              },
+              "kind": "Image"
+            },
+            {
+              "id": "button_1",
+              "name": "Start",
+              "properties": {
+                "action": {
+                  "expr": "Set(Pieces, Shuffle(Range(0, Width * Height - 1)))"
+                }
+              },
+              "kind": "Button"
+            },
+            {
+              "id": "layout_1",
+              "name": "Layout 1",
+              "properties": {
+                "horizontal": true,
+                "wrap": true,
+                "styles": {
+                  "width": "515",
+                  "height": "515",
+                  "gap": "3px"
+                }
+              },
+              "elements": [
+                {
+                  "id": "itemset_1",
+                  "name": "Chunks",
+                  "properties": {
+                    "items": {
+                      "expr": "Pieces"
+                    },
+                    "selectable": "none",
+                    "selectAction": {
+                      "expr": "Log('select', $item, $itemId)\nIf(IsNull(Selected1), Set(Selected1, $itemId), SwapSelected($itemId))\n"
+                    }
+                  },
+                  "elements": [
+                    {
+                      "id": "block_1",
+                      "name": "Image Chunk",
+                      "properties": {
+                        "styles": {
+                          "backgroundImage": "url(../files/Car1.jpg)",
+                          "height": "100",
+                          "width": "100",
+                          "backgroundColor": "lightgray",
+                          "backgroundPositionX": {
+                            "expr": "-($item % Width) * 100 + 'px'"
+                          },
+                          "backgroundPositionY": {
+                            "expr": "-Floor($item / Width) * 100 + 'px'"
+                          }
+                        }
+                      },
+                      "kind": "Block"
+                    }
+                  ],
+                  "kind": "ItemSet"
+                }
+              ],
+              "kind": "Layout"
+            }
+          ],
+          "kind": "Page"
+        }
+      ],
+      "kind": "App"
+    },
+    {
+      "id": "_TOOLS",
+      "name": "Tools",
+      "properties": {},
+      "kind": "ToolFolder"
+    },
+    {
+      "id": "_COMPONENTS",
+      "name": "Components",
+      "properties": {},
+      "kind": "ComponentFolder"
+    }
+  ],
+  "kind": "Project"
+}
