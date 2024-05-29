@@ -31,7 +31,9 @@
               "id": "data_2",
               "name": "Width",
               "properties": {
-                "initialValue": "5"
+                "initialValue": {
+                  "expr": "5"
+                }
               },
               "kind": "Data"
             },
@@ -44,35 +46,111 @@
               "kind": "Data"
             },
             {
+              "id": "data_6",
+              "name": "Time Limit",
+              "properties": {
+                "initialValue": {
+                  "expr": "180"
+                }
+              },
+              "kind": "Data"
+            },
+            {
               "id": "data_1",
               "name": "Pieces",
               "properties": {
                 "initialValue": {
                   "expr": "Range(0, Width * Height - 1)"
-                },
-                "display": true
+                }
               },
               "kind": "Data"
             },
             {
               "id": "data_4",
-              "name": "Selected 1",
+              "name": "Selected Piece",
               "properties": {
                 "initialValue": {
                   "expr": "null"
-                },
-                "display": true
+                }
               },
               "kind": "Data"
+            },
+            {
+              "id": "data_5",
+              "name": "Moves",
+              "properties": {
+                "initialValue": {
+                  "expr": "0"
+                }
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "calculation_1",
+              "name": "Number Correct",
+              "properties": {
+                "calculation": {
+                  "expr": "Count(Pieces, $item == $index)"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_2",
+              "name": "All Correct",
+              "properties": {
+                "calculation": {
+                  "expr": "Eq(NumberCorrect, Count(Pieces))"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_3",
+              "name": "Game Over",
+              "properties": {
+                "calculation": {
+                  "expr": "Or(GameTimer.isFinished , AllCorrect)"
+                },
+                "whenTrueAction": {
+                  "expr": "Log('Game over!')\nGameTimer.Stop()"
+                }
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "timer_1",
+              "name": "Game Timer",
+              "properties": {
+                "label": "Time",
+                "interval": 1,
+                "period": {
+                  "expr": "TimeLimit"
+                },
+                "show": true
+              },
+              "kind": "Timer"
             },
             {
               "id": "function_1",
               "name": "Swap Selected",
               "properties": {
                 "calculation": {
-                  "expr": "let piece1 = ItemAt(Pieces, Selected1)\nlet piece2 = ItemAt(Pieces, selected2)\nUpdate(Pieces, {[Selected1.value]: piece2, [selected2]: piece1})\nReset(Selected1)\n"
+                  "expr": "let piece1 = ItemAt(Pieces, SelectedPiece)\nlet piece2 = ItemAt(Pieces, selected2)\nUpdate(Pieces, {[SelectedPiece.value]: piece2, [selected2]: piece1})\nReset(SelectedPiece)\nSet(Moves, Moves + 1)\nCheckScores()"
                 },
                 "input1": "selected2"
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_2",
+              "name": "Check Scores",
+              "properties": {
+                "calculation": {
+                  "expr": "If(AllCorrect, GameTimer.Stop())"
+                }
               },
               "kind": "Function"
             },
@@ -90,10 +168,42 @@
               "name": "Start",
               "properties": {
                 "action": {
-                  "expr": "Set(Pieces, Shuffle(Range(0, Width * Height - 1)))"
+                  "expr": "Set(Pieces, Shuffle(Range(0, Width * Height - 1)))\nReset(Moves)\nGameTimer.Reset()\nGameTimer.Start()"
                 }
               },
               "kind": "Button"
+            },
+            {
+              "id": "layout_2",
+              "name": "Status Line",
+              "properties": {
+                "horizontal": true
+              },
+              "elements": [
+                {
+                  "id": "text_2",
+                  "name": "Moves Taken",
+                  "properties": {
+                    "content": {
+                      "expr": "Moves + \" moves\""
+                    },
+                    "styles": {}
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "text_3",
+                  "name": "Time Left",
+                  "properties": {
+                    "content": {
+                      "expr": "Ceiling(TimeLimit - GameTimer.value) + \" seconds remaining\""
+                    },
+                    "styles": {}
+                  },
+                  "kind": "Text"
+                }
+              ],
+              "kind": "Layout"
             },
             {
               "id": "layout_1",
@@ -102,9 +212,9 @@
                 "horizontal": true,
                 "wrap": true,
                 "styles": {
-                  "width": "515",
+                  "width": "530",
                   "height": "515",
-                  "gap": "3px"
+                  "gap": "0"
                 }
               },
               "elements": [
@@ -117,27 +227,66 @@
                     },
                     "selectable": "none",
                     "selectAction": {
-                      "expr": "Log('select', $item, $itemId)\nIf(IsNull(Selected1), Set(Selected1, $itemId), SwapSelected($itemId))\n"
+                      "expr": "Log('select', $item, $itemId)\nIf(IsNull(SelectedPiece), Set(SelectedPiece, $itemId), SwapSelected($itemId))\n"
                     }
                   },
                   "elements": [
                     {
-                      "id": "block_1",
-                      "name": "Image Chunk",
+                      "id": "block_2",
+                      "name": "Chunk Wrapper",
                       "properties": {
                         "styles": {
-                          "backgroundImage": "url(../files/Car1.jpg)",
                           "height": "100",
                           "width": "100",
-                          "backgroundColor": "lightgray",
-                          "backgroundPositionX": {
-                            "expr": "-($item % Width) * 100 + 'px'"
+                          "borderColor": {
+                            "expr": "If(Eq($itemId, SelectedPiece), 'orange', 'transparent')"
                           },
-                          "backgroundPositionY": {
-                            "expr": "-Floor($item / Width) * 100 + 'px'"
-                          }
+                          "borderStyle": "solid",
+                          "borderWidth": "3"
                         }
                       },
+                      "elements": [
+                        {
+                          "id": "icon_1",
+                          "name": "Ok Indicator",
+                          "properties": {
+                            "iconName": "check",
+                            "styles": {
+                              "color": "green",
+                              "backgroundColor": "white",
+                              "position": "absolute",
+                              "zIndex": 1,
+                              "bottom": "0",
+                              "right": "0",
+                              "fontSize": "16",
+                              "borderRadius": "50%"
+                            },
+                            "show": {
+                              "expr": "Eq($item, $itemId)"
+                            }
+                          },
+                          "kind": "Icon"
+                        },
+                        {
+                          "id": "block_3",
+                          "name": "Image Chunk",
+                          "properties": {
+                            "styles": {
+                              "backgroundImage": "url(../files/Car1.jpg)",
+                              "height": "100",
+                              "width": "100",
+                              "backgroundColor": "lightgray",
+                              "backgroundPositionX": {
+                                "expr": "-($item % Width) * 100 + 'px'"
+                              },
+                              "backgroundPositionY": {
+                                "expr": "-Floor($item / Width) * 100 + 'px'"
+                              }
+                            }
+                          },
+                          "kind": "Block"
+                        }
+                      ],
                       "kind": "Block"
                     }
                   ],
