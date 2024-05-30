@@ -116,7 +116,8 @@
                 },
                 "whenTrueAction": {
                   "expr": "Log('Game over!')\nGameTimer.Stop()"
-                }
+                },
+                "show": false
               },
               "kind": "Calculation"
             },
@@ -129,7 +130,7 @@
                 "period": {
                   "expr": "TimeLimit"
                 },
-                "show": true
+                "show": false
               },
               "kind": "Timer"
             },
@@ -177,7 +178,10 @@
               "id": "layout_2",
               "name": "Status Line",
               "properties": {
-                "horizontal": true
+                "horizontal": true,
+                "styles": {
+                  "fontSize": "20px"
+                }
               },
               "elements": [
                 {
@@ -185,9 +189,11 @@
                   "name": "Moves Taken",
                   "properties": {
                     "content": {
-                      "expr": "Moves + \" moves\""
+                      "expr": "\"Moves: \" +  Moves"
                     },
-                    "styles": {}
+                    "styles": {
+                      "fontSize": "inherit"
+                    }
                   },
                   "kind": "Text"
                 },
@@ -196,9 +202,12 @@
                   "name": "Time Left",
                   "properties": {
                     "content": {
-                      "expr": "Ceiling(TimeLimit - GameTimer.value) + \" seconds remaining\""
+                      "expr": "\"Remaining: \" + Ceiling(TimeLimit - GameTimer.value) + \" seconds\""
                     },
-                    "styles": {}
+                    "styles": {
+                      "fontSize": "inherit",
+                      "marginLeft": "6em"
+                    }
                   },
                   "kind": "Text"
                 }
@@ -272,7 +281,9 @@
                           "name": "Image Chunk",
                           "properties": {
                             "styles": {
-                              "backgroundImage": "url(../files/Car1.jpg)",
+                              "backgroundImage": {
+                                "expr": "'url(' + FileUrl('Car1.jpg') + ')'"
+                              },
                               "height": "100",
                               "width": "100",
                               "backgroundColor": "lightgray",
