@@ -14,23 +14,21 @@ const MainPage_ChunksItem = React.memo(function MainPage_ChunksItem(props) {
     const {FileUrl} = app
     const SelectedPiece = _state.useObject(parentPathWith('SelectedPiece'))
     const Width = _state.useObject(parentPathWith('Width'))
-    const styles = undefined
+    const styles = {borderColor: If(Eq($itemId, SelectedPiece), 'orange', 'transparent'), borderWidth: '3', borderStyle: 'solid', height: '100', width: '100', position: 'absolute', left: ($itemId % Width) * 103 + 'px', top: Floor($itemId / Width) * 103 + 'px'}
 
     return React.createElement(ItemSetItem, {path: props.path, onClick, styles},
-        React.createElement(Block, {path: pathWith('ChunkWrapper'), styles: {height: '100', width: '100', borderColor: If(Eq($itemId, SelectedPiece), 'orange', 'transparent'), borderStyle: 'solid', borderWidth: '3'}},
-            React.createElement(Icon, {path: pathWith('OkIndicator'), iconName: 'check', show: Eq($item, $itemId), styles: {color: 'green', backgroundColor: 'white', position: 'absolute', zIndex: 1, bottom: '0', right: '0', fontSize: '16', borderRadius: '50%'}}),
-            React.createElement(Block, {path: pathWith('ImageChunk'), styles: {backgroundImage: 'url(' + FileUrl('Car1.jpg') + ')', height: '100', width: '100', backgroundColor: 'lightgray', backgroundPositionX: -($item % Width) * 100 + 'px', backgroundPositionY: -Floor($item / Width) * 100 + 'px'}},
+        React.createElement(Block, {path: pathWith('ImageChunk'), styles: {backgroundImage: 'url(' + FileUrl('Car1.jpg') + ')', height: '100', width: '100', backgroundColor: 'lightgray', backgroundPositionX: -($item % Width) * 100 + 'px', backgroundPositionY: -Floor($item / Width) * 100 + 'px'}},
 
     ),
-    ),
+        React.createElement(Icon, {path: pathWith('OkIndicator'), iconName: 'check', show: Eq($item, $itemId), styles: {color: 'green', backgroundColor: 'white', position: 'absolute', bottom: '0', right: '0', fontSize: '16', borderRadius: '50%'}}),
     )
 })
 
 
 function MainPage(props) {
     const pathWith = name => props.path + '.' + name
-    const {Page, TextElement, Data, Calculation, Timer, Image, Button, Layout, ItemSet} = Elemento.components
-    const {Range, Count, Eq, Or, Log, ItemAt, If, Shuffle, Ceiling, IsNull} = Elemento.globalFunctions
+    const {Page, TextElement, Data, Calculation, Timer, Image, Button, Layout, Block, ItemSet} = Elemento.components
+    const {Range, Count, Eq, Or, Log, ItemAt, If, Shuffle, Ceiling, IsNull, Floor} = Elemento.globalFunctions
     const {Update, Reset, Set} = Elemento.appFunctions
     const _state = Elemento.useGetStore()
     const Width = _state.setObject(pathWith('Width'), new Data.State({value: 5}))
@@ -89,7 +87,7 @@ function MainPage(props) {
             React.createElement(TextElement, {path: pathWith('MovesTaken'), styles: {fontSize: 'inherit'}}, 'Moves: ' +  Moves),
             React.createElement(TextElement, {path: pathWith('TimeLeft'), styles: {fontSize: 'inherit', marginLeft: '6em'}}, 'Remaining: ' + Ceiling(TimeLimit - GameTimer.value) + ' seconds'),
     ),
-        React.createElement(Layout, {path: pathWith('Layout1'), horizontal: true, wrap: true, styles: {width: '530', height: '515', gap: '0'}},
+        React.createElement(Block, {path: pathWith('Block4'), styles: {height: '515px', width: '515px'}},
             React.createElement(ItemSet, {path: pathWith('Chunks'), itemContentComponent: MainPage_ChunksItem}),
     ),
     )

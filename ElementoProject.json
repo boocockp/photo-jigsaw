@@ -215,20 +215,17 @@
               "kind": "Layout"
             },
             {
-              "id": "layout_1",
-              "name": "Layout 1",
+              "id": "block_4",
+              "name": "Block 4",
               "properties": {
-                "horizontal": true,
-                "wrap": true,
                 "styles": {
-                  "width": "530",
-                  "height": "515",
-                  "gap": "0"
+                  "height": "515px",
+                  "width": "515px"
                 }
               },
               "elements": [
                 {
-                  "id": "itemset_1",
+                  "id": "itemset_2",
                   "name": "Chunks",
                   "properties": {
                     "items": {
@@ -237,74 +234,71 @@
                     "selectable": "none",
                     "selectAction": {
                       "expr": "Log('select', $item, $itemId)\nIf(IsNull(SelectedPiece), Set(SelectedPiece, $itemId), SwapSelected($itemId))\n"
+                    },
+                    "itemStyles": {
+                      "borderColor": {
+                        "expr": "If(Eq($itemId, SelectedPiece), 'orange', 'transparent')"
+                      },
+                      "borderWidth": "3",
+                      "borderStyle": "solid",
+                      "height": "100",
+                      "width": "100",
+                      "position": "absolute",
+                      "left": {
+                        "expr": "($itemId % Width) * 103 + 'px'"
+                      },
+                      "top": {
+                        "expr": "Floor($itemId / Width) * 103 + 'px'"
+                      }
                     }
                   },
                   "elements": [
                     {
-                      "id": "block_2",
-                      "name": "Chunk Wrapper",
+                      "id": "block_5",
+                      "name": "Image Chunk",
                       "properties": {
                         "styles": {
+                          "backgroundImage": {
+                            "expr": "'url(' + FileUrl('Car1.jpg') + ')'"
+                          },
                           "height": "100",
                           "width": "100",
-                          "borderColor": {
-                            "expr": "If(Eq($itemId, SelectedPiece), 'orange', 'transparent')"
+                          "backgroundColor": "lightgray",
+                          "backgroundPositionX": {
+                            "expr": "-($item % Width) * 100 + 'px'"
                           },
-                          "borderStyle": "solid",
-                          "borderWidth": "3"
+                          "backgroundPositionY": {
+                            "expr": "-Floor($item / Width) * 100 + 'px'"
+                          }
                         }
                       },
-                      "elements": [
-                        {
-                          "id": "icon_1",
-                          "name": "Ok Indicator",
-                          "properties": {
-                            "iconName": "check",
-                            "styles": {
-                              "color": "green",
-                              "backgroundColor": "white",
-                              "position": "absolute",
-                              "zIndex": 1,
-                              "bottom": "0",
-                              "right": "0",
-                              "fontSize": "16",
-                              "borderRadius": "50%"
-                            },
-                            "show": {
-                              "expr": "Eq($item, $itemId)"
-                            }
-                          },
-                          "kind": "Icon"
-                        },
-                        {
-                          "id": "block_3",
-                          "name": "Image Chunk",
-                          "properties": {
-                            "styles": {
-                              "backgroundImage": {
-                                "expr": "'url(' + FileUrl('Car1.jpg') + ')'"
-                              },
-                              "height": "100",
-                              "width": "100",
-                              "backgroundColor": "lightgray",
-                              "backgroundPositionX": {
-                                "expr": "-($item % Width) * 100 + 'px'"
-                              },
-                              "backgroundPositionY": {
-                                "expr": "-Floor($item / Width) * 100 + 'px'"
-                              }
-                            }
-                          },
-                          "kind": "Block"
-                        }
-                      ],
                       "kind": "Block"
+                    },
+                    {
+                      "id": "icon_2",
+                      "name": "Ok Indicator",
+                      "properties": {
+                        "iconName": "check",
+                        "styles": {
+                          "color": "green",
+                          "backgroundColor": "white",
+                          "position": "absolute",
+                          "bottom": "0",
+                          "right": "0",
+                          "fontSize": "16",
+                          "borderRadius": "50%"
+                        },
+                        "show": {
+                          "expr": "Eq($item, $itemId)"
+                        }
+                      },
+                      "kind": "Icon"
                     }
                   ],
                   "kind": "ItemSet"
                 }
               ],
-              "kind": "Layout"
+              "kind": "Block"
             }
           ],
           "kind": "Page"
