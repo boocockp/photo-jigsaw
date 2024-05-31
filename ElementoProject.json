@@ -5,7 +5,7 @@
   "elements": [
     {
       "id": "app_1",
-      "name": "Main App",
+      "name": "Photo Jigsaw",
       "properties": {},
       "elements": [
         {
@@ -173,6 +173,17 @@
                 }
               },
               "kind": "Button"
+            },
+            {
+              "id": "text_4",
+              "name": "Instructions",
+              "properties": {
+                "content": "The squares will be scrambled when you start.  \nClick or tap two squares to swap them",
+                "show": {
+                  "expr": "Not(GameTimer.isRunning)"
+                }
+              },
+              "kind": "Text"
             },
             {
               "id": "layout_2",
