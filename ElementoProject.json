@@ -219,8 +219,9 @@
               "name": "Block 4",
               "properties": {
                 "styles": {
-                  "height": "500px",
-                  "width": "500px"
+                  "width": "100%",
+                  "maxWidth": "500px",
+                  "aspectRatio": "1 / 1"
                 }
               },
               "elements": [
@@ -265,10 +266,13 @@
                           "width": "100%",
                           "backgroundColor": "lightgray",
                           "backgroundPositionX": {
-                            "expr": "-($item % Width) * 100 + 'px'"
+                            "expr": "-($item % Width) * 100 + '%'"
                           },
                           "backgroundPositionY": {
-                            "expr": "-Floor($item / Width) * 100 + 'px'"
+                            "expr": "-Floor($item / Width) * 100 + '%'"
+                          },
+                          "backgroundSize": {
+                            "expr": "Width * 100 + '%'"
                           }
                         }
                       },

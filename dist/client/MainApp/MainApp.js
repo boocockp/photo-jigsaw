@@ -17,7 +17,7 @@ const MainPage_ChunksItem = React.memo(function MainPage_ChunksItem(props) {
     const styles = {borderColor: If(Eq($itemId, SelectedPiece), 'orange', 'transparent'), borderWidth: '3', borderStyle: 'solid', height: '20%', width: '20%', position: 'absolute', left: 'calc(' + ($itemId % Width) * 20 + '% + ' + ($itemId % Width)* 3 + 'px)', top: 'calc(' + Floor($itemId / Width) * 20 + '% + ' + Floor($itemId / Width)* 3 + 'px)'}
 
     return React.createElement(ItemSetItem, {path: props.path, onClick, styles},
-        React.createElement(Block, {path: pathWith('ImageChunk'), styles: {backgroundImage: 'url(' + FileUrl('Car1.jpg') + ')', height: '100%', width: '100%', backgroundColor: 'lightgray', backgroundPositionX: -($item % Width) * 100 + 'px', backgroundPositionY: -Floor($item / Width) * 100 + 'px'}},
+        React.createElement(Block, {path: pathWith('ImageChunk'), styles: {backgroundImage: 'url(' + FileUrl('Car1.jpg') + ')', height: '100%', width: '100%', backgroundColor: 'lightgray', backgroundPositionX: -($item % Width) * 100 + '%', backgroundPositionY: -Floor($item / Width) * 100 + '%', backgroundSize: Width * 100 + '%'}},
 
     ),
         React.createElement(Icon, {path: pathWith('OkIndicator'), iconName: 'check', show: Eq($item, $itemId), styles: {color: 'green', backgroundColor: 'white', position: 'absolute', bottom: '0', right: '0', fontSize: '16', borderRadius: '50%'}}),
@@ -87,7 +87,7 @@ function MainPage(props) {
             React.createElement(TextElement, {path: pathWith('MovesTaken'), styles: {fontSize: 'inherit'}}, 'Moves: ' +  Moves),
             React.createElement(TextElement, {path: pathWith('TimeLeft'), styles: {fontSize: 'inherit', marginLeft: '6em'}}, 'Remaining: ' + Ceiling(TimeLimit - GameTimer.value) + ' seconds'),
     ),
-        React.createElement(Block, {path: pathWith('Block4'), styles: {height: '500px', width: '500px'}},
+        React.createElement(Block, {path: pathWith('Block4'), styles: {width: '100%', maxWidth: '500px', aspectRatio: '1 / 1'}},
             React.createElement(ItemSet, {path: pathWith('Chunks'), itemContentComponent: MainPage_ChunksItem}),
     ),
     )
