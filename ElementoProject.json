@@ -146,7 +146,7 @@
               "properties": {
                 "action": true,
                 "calculation": {
-                  "expr": "Set(Pieces, Shuffle(Range(0, Width * Height - 1)))\nReset(Moves)\n"
+                  "expr": "Set(Pieces, Shuffle(Range(0, Width * Height - 1)))\nReset(Moves, ShowPuzzle)\n"
                 }
               },
               "kind": "Function"
@@ -302,6 +302,16 @@
               "kind": "Data"
             },
             {
+              "id": "data_10",
+              "name": "Show Puzzle",
+              "properties": {
+                "initialValue": {
+                  "expr": "false"
+                }
+              },
+              "kind": "Data"
+            },
+            {
               "id": "data_5",
               "name": "Moves",
               "properties": {
@@ -359,7 +369,7 @@
                   "id": "text_5",
                   "name": "Instructions Text",
                   "properties": {
-                    "content": "Move the jumbled chunks of the picture into the correct positions.\n\n\nClick on two squares one after the other to swap their positions. You have up to 50 moves on a picture.\n\n\nYou score a point for each chunk in the right position, and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nClick New Picture to start on the next picture.\n\n\nYou have 3 minutes - see how many you can do!",
+                    "content": "Move the jumbled chunks of a picture into the correct positions.\n\n\nStudy the original first - but not too long, the timer is running.  Then click Show Puzzle to start.  You can click Show Original later to switch between the two.\n\n\nClick on two squares one after the other to swap their positions. You have up to 50 moves on a picture.\n\n\nYou score a point for each chunk in the right position, and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nClick New Picture to start on the next picture.\n\n\nYou have 3 minutes - see how many you can do!",
                     "allowHtml": true
                   },
                   "kind": "Text"
@@ -478,7 +488,7 @@
                   "id": "text_10",
                   "name": "Ready Text",
                   "properties": {
-                    "content": "Move the chunks of a picture into the right positions.\n\nClick on two squares to swap them.\n\nClick Instructions for full details\n\nOr Start Game to dive straight in!",
+                    "content": "Move the chunks of a picture into the right positions.\n\nView the original, then click Show Puzzle to start.\n\nClick on two squares to swap them.\n\nClick Instructions for full details\n\nOr Start Game to dive straight in!",
                     "styles": {
                       "fontSize": "20"
                     }
@@ -517,7 +527,10 @@
                       "border": "1px solid gray",
                       "gap": "0"
                     },
-                    "layout": "horizontal wrapped"
+                    "layout": "horizontal wrapped",
+                    "show": {
+                      "expr": "ShowPuzzle"
+                    }
                   },
                   "elements": [
                     {
@@ -529,7 +542,7 @@
                         },
                         "selectable": "none",
                         "selectAction": {
-                          "expr": "Log('select', $item, $itemId)\nIf(IsNull(SelectedPiece), Set(SelectedPiece, $itemId), SwapSelected($itemId))\n"
+                          "expr": "If(RoundInPlay, If(IsNull(SelectedPiece), Set(SelectedPiece, $itemId), SwapSelected($itemId)))\n"
                         },
                         "itemStyles": {
                           "borderColor": {
@@ -597,6 +610,30 @@
                   "kind": "Block"
                 },
                 {
+                  "id": "block_18",
+                  "name": "Photo Original",
+                  "properties": {
+                    "styles": {
+                      "width": "100%",
+                      "maxWidth": "500px",
+                      "aspectRatio": {
+                        "expr": "Width / Height"
+                      },
+                      "border": "1px solid gray",
+                      "backgroundImage": {
+                        "expr": "'url(' + FileUrl('Car1.jpg') + ')'"
+                      },
+                      "backgroundSize": "cover"
+                    },
+                    "layout": "none",
+                    "show": {
+                      "expr": "Not(ShowPuzzle)"
+                    }
+                  },
+                  "elements": [],
+                  "kind": "Block"
+                },
+                {
                   "id": "block_9",
                   "name": "Round Status Block",
                   "properties": {
@@ -648,7 +685,9 @@
                       "id": "text_15",
                       "name": "Round Skipped",
                       "properties": {
-                        "content": "Skipped",
+                        "content": {
+                          "expr": "'Picture skipped - ' + Points() + ' points'"
+                        },
                         "show": {
                           "expr": "RoundSkipped"
                         }
@@ -732,9 +771,40 @@
                   "id": "block_11",
                   "name": "Round Controls",
                   "properties": {
-                    "layout": "horizontal"
+                    "layout": "horizontal",
+                    "styles": {
+                      "justifyContent": "space-between",
+                      "width": "100%"
+                    }
                   },
                   "elements": [
+                    {
+                      "id": "button_11",
+                      "name": "Show Puzzle",
+                      "properties": {
+                        "action": {
+                          "expr": "Set(ShowPuzzle, true)"
+                        },
+                        "show": {
+                          "expr": "Not(ShowPuzzle)"
+                        },
+                        "appearance": "filled"
+                      },
+                      "kind": "Button"
+                    },
+                    {
+                      "id": "button_10",
+                      "name": "Show Original",
+                      "properties": {
+                        "action": {
+                          "expr": "Set(ShowPuzzle, false)"
+                        },
+                        "show": {
+                          "expr": "ShowPuzzle"
+                        }
+                      },
+                      "kind": "Button"
+                    },
                     {
                       "id": "button_4",
                       "name": "Skip Round",
