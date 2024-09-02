@@ -333,48 +333,13 @@
               "kind": "Function"
             },
             {
-              "id": "calculation_2",
-              "name": "All Correct",
-              "properties": {
-                "calculation": {
-                  "expr": "Eq(NumberCorrect, Count(Pieces))"
-                },
-                "show": false
-              },
-              "kind": "Calculation"
-            },
-            {
-              "id": "calculation_3",
-              "name": "Game Over",
-              "properties": {
-                "calculation": {
-                  "expr": "Or(GameTimer.isFinished , AllCorrect)"
-                },
-                "whenTrueAction": {
-                  "expr": "Log('Game over!')\nGameTimer.Stop()"
-                },
-                "show": false
-              },
-              "kind": "Calculation"
-            },
-            {
               "id": "function_1",
               "name": "Swap Selected",
               "properties": {
                 "calculation": {
-                  "expr": "let piece1 = ItemAt(Pieces, SelectedPiece)\nlet piece2 = ItemAt(Pieces, selected2)\nUpdate(Pieces, {[SelectedPiece.value]: piece2, [selected2]: piece1})\nReset(SelectedPiece)\nSet(Moves, Moves + 1)\nCheckScores()"
+                  "expr": "let piece1 = ItemAt(Pieces, SelectedPiece)\nlet piece2 = ItemAt(Pieces, selected2)\nUpdate(Pieces, {[SelectedPiece.value]: piece2, [selected2]: piece1})\nReset(SelectedPiece)\nSet(Moves, Moves + 1)"
                 },
                 "input1": "selected2"
-              },
-              "kind": "Function"
-            },
-            {
-              "id": "function_2",
-              "name": "Check Scores",
-              "properties": {
-                "calculation": {
-                  "expr": "If(AllCorrect, GameTimer.Stop())"
-                }
               },
               "kind": "Function"
             },
@@ -394,7 +359,7 @@
                   "id": "text_5",
                   "name": "Instructions Text",
                   "properties": {
-                    "content": "Move the smiley face to the top row of the board, while keeping as many points as possible.\n\n\nClick on an empty space next to your smiley to move it.  Horizontal or vertical moves cost 1 point, diagonal moves cost 3 points. \n\n\nClick on an obstacle to make it move somewhere else - this costs the number of points on the obstacle.\n\n\n\nAnd we should mention that after each of your moves, one of the obstacles will make a random move (wait for this to finish before trying to move again).\n\n\nYou score as many points as you have left when you get to the top row.\n\n\nClick New Maze to start again.\n\n\nYou have 3 minutes to complete as many mazes as you can.",
+                    "content": "Move the jumbled chunks of the picture into the correct positions.\n\n\nClick on two squares one after the other to swap their positions. You have up to 50 moves on a picture.\n\n\nYou score a point for each chunk in the right position, and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nClick New Picture to start on the next picture.\n\n\nYou have 3 minutes - see how many you can do!",
                     "allowHtml": true
                   },
                   "kind": "Text"
@@ -513,7 +478,7 @@
                   "id": "text_10",
                   "name": "Ready Text",
                   "properties": {
-                    "content": "Move your smiley face to the top of the board while keeping as many points as possible.\n\nClick on empty adjacent squares to move the smiley, or click on an obstacle to move it.\n\nClick Instructions for full details\n\nOr Start Game to dive straight in!",
+                    "content": "Move the chunks of a picture into the right positions.\n\nClick on two squares to swap them.\n\nClick Instructions for full details\n\nOr Start Game to dive straight in!",
                     "styles": {
                       "fontSize": "20"
                     }
@@ -546,9 +511,13 @@
                     "styles": {
                       "width": "100%",
                       "maxWidth": "500px",
-                      "aspectRatio": "1",
-                      "position": "relative"
-                    }
+                      "aspectRatio": {
+                        "expr": "Width / Height"
+                      },
+                      "border": "1px solid gray",
+                      "gap": "0"
+                    },
+                    "layout": "horizontal wrapped"
                   },
                   "elements": [
                     {
@@ -566,17 +535,14 @@
                           "borderColor": {
                             "expr": "If(Eq($itemId, SelectedPiece), 'orange', 'transparent')"
                           },
-                          "borderWidth": "3",
-                          "borderStyle": "solid",
-                          "height": "20%",
-                          "width": "20%",
-                          "position": "absolute",
-                          "left": {
-                            "expr": "'calc(' + ($itemId % Width) * 20 + '% + ' + ($itemId % Width)* 3 + 'px)'"
+                          "width": {
+                            "expr": "100 / Width + '%'"
                           },
-                          "top": {
-                            "expr": "'calc(' + Floor($itemId / Width) * 20 + '% + ' + Floor($itemId / Width)* 3 + 'px)'"
-                          }
+                          "aspectRatio": "1",
+                          "boxSizing": "border-box",
+                          "borderStyle": "solid",
+                          "borderWidth": "2",
+                          "position": "relative"
                         }
                       },
                       "elements": [

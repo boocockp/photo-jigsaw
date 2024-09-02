@@ -16,7 +16,7 @@ const MainPage_ChunksItem = React.memo(function MainPage_ChunksItem(props) {
     const Width = _state.useObject(parentPathWith('Width'))
     const ImageChunk = _state.setObject(pathTo('ImageChunk'), new Block.State(stateProps(pathTo('ImageChunk')).props))
     const canDragItem = undefined
-    const styles = elProps(pathTo('Chunks.Styles')).borderColor(If(Eq($itemId, SelectedPiece), 'orange', 'transparent')).borderWidth('3').borderStyle('solid').height('20%').width('20%').position('absolute').left('calc(' + ($itemId % Width) * 20 + '% + ' + ($itemId % Width)* 3 + 'px)').top('calc(' + Floor($itemId / Width) * 20 + '% + ' + Floor($itemId / Width)* 3 + 'px)').props
+    const styles = elProps(pathTo('Chunks.Styles')).borderColor(If(Eq($itemId, SelectedPiece), 'orange', 'transparent')).width(100 / Width + '%').aspectRatio('1').boxSizing('border-box').borderStyle('solid').borderWidth('2').position('relative').props
 
     return React.createElement(ItemSetItem, {path: props.path, item: $item, itemId: $itemId, index: $index, onClick, canDragItem, styles},
         React.createElement(Block, elProps(pathTo('ImageChunk')).layout('vertical').styles(elProps(pathTo('ImageChunk.Styles')).backgroundImage('url(' + FileUrl('Car1.jpg') + ')').height('100%').width('100%').backgroundColor('lightgray').backgroundPositionX(-($item % Width) * 100 + '%').backgroundPositionY(-Floor($item / Width) * 100 + '%').backgroundSize(Width * 100 + '%').props).props),
@@ -28,7 +28,7 @@ const MainPage_ChunksItem = React.memo(function MainPage_ChunksItem(props) {
 function MainPage(props) {
     const pathTo = name => props.path + '.' + name
     const {Page, Data, Calculation, Timer, TextElement, Dialog, Button, Block, ItemSet} = Elemento.components
-    const {Eq, Or, Not, Max, Shuffle, Range, Count, If, Log, ItemAt, Ceiling, IsNull, Floor} = Elemento.globalFunctions
+    const {Eq, Or, Not, Max, Shuffle, Range, Count, If, ItemAt, Ceiling, Log, IsNull} = Elemento.globalFunctions
     const {Set, Reset, Update} = Elemento.appFunctions
     const _state = Elemento.useGetStore()
     const Status = _state.setObject(pathTo('Status'), new Data.State(stateProps(pathTo('Status')).value('Ready').props))
@@ -89,23 +89,13 @@ function MainPage(props) {
         await EndRound()
     }), [EndRound])
     const WhenRoundComplete = _state.setObject(pathTo('WhenRoundComplete'), new Calculation.State(stateProps(pathTo('WhenRoundComplete')).value(IsRoundComplete).whenTrueAction(WhenRoundComplete_whenTrueAction).props))
-    const AllCorrect = _state.setObject(pathTo('AllCorrect'), new Calculation.State(stateProps(pathTo('AllCorrect')).value(Eq(NumberCorrect, Count(Pieces))).props))
-    const GameOver_whenTrueAction = React.useCallback(wrapFn(pathTo('GameOver'), 'whenTrueAction', async () => {
-        Log('Game over!')
-        await GameTimer.Stop()
-    }), [GameTimer])
-    const GameOver = _state.setObject(pathTo('GameOver'), new Calculation.State(stateProps(pathTo('GameOver')).value(Or(GameTimer.isFinished , AllCorrect)).whenTrueAction(GameOver_whenTrueAction).props))
-    const CheckScores = _state.setObject(pathTo('CheckScores'), React.useCallback(wrapFn(pathTo('CheckScores'), 'calculation', () => {
-        return If(AllCorrect, () => GameTimer.Stop())
-    }), [AllCorrect, GameTimer]))
     const SwapSelected = _state.setObject(pathTo('SwapSelected'), React.useCallback(wrapFn(pathTo('SwapSelected'), 'calculation', (selected2) => {
         let piece1 = ItemAt(Pieces, SelectedPiece)
         let piece2 = ItemAt(Pieces, selected2)
         Update(Pieces, {[SelectedPiece.value]: piece2, [selected2]: piece1})
         Reset(SelectedPiece)
-        Set(Moves, Moves + 1)
-        return CheckScores()
-    }), [Pieces, SelectedPiece, Moves, CheckScores]))
+        return Set(Moves, Moves + 1)
+    }), [Pieces, SelectedPiece, Moves]))
     const Instructions = _state.setObject(pathTo('Instructions'), new Dialog.State(stateProps(pathTo('Instructions')).initiallyOpen(false).props))
     const StatsLayout = _state.setObject(pathTo('StatsLayout'), new Block.State(stateProps(pathTo('StatsLayout')).props))
     const ReadyPanel = _state.setObject(pathTo('ReadyPanel'), new Block.State(stateProps(pathTo('ReadyPanel')).props))
@@ -170,29 +160,23 @@ function MainPage(props) {
         React.createElement(Data, elProps(pathTo('SelectedPiece')).display(false).props),
         React.createElement(Data, elProps(pathTo('Moves')).display(false).props),
         React.createElement(Calculation, elProps(pathTo('NumberCorrect')).show(false).props),
-        React.createElement(Calculation, elProps(pathTo('AllCorrect')).show(false).props),
-        React.createElement(Calculation, elProps(pathTo('GameOver')).show(false).props),
         React.createElement(Dialog, elProps(pathTo('Instructions')).layout('vertical').showCloseButton(true).styles(elProps(pathTo('Instructions.Styles')).padding('2em').props).props,
-            React.createElement(TextElement, elProps(pathTo('InstructionsText')).allowHtml(true).content(`Move the smiley face to the top row of the board, while keeping as many points as possible.
+            React.createElement(TextElement, elProps(pathTo('InstructionsText')).allowHtml(true).content(`Move the jumbled chunks of the picture into the correct positions.
 
 
-Click on an empty space next to your smiley to move it.  Horizontal or vertical moves cost 1 point, diagonal moves cost 3 points. 
+Click on two squares one after the other to swap their positions. You have up to 50 moves on a picture.
 
 
-Click on an obstacle to make it move somewhere else - this costs the number of points on the obstacle.
+You score a point for each chunk in the right position, and double if you get them all correct.
 
 
-
-And we should mention that after each of your moves, one of the obstacles will make a random move (wait for this to finish before trying to move again).
-
-
-You score as many points as you have left when you get to the top row.
+If you get stuck and want to try another picture, click Skip this picture - you keep any points you have.
 
 
-Click New Maze to start again.
+Click New Picture to start on the next picture.
 
 
-You have 3 minutes to complete as many mazes as you can.`).props),
+You have 3 minutes - see how many you can do!`).props),
             React.createElement(Button, elProps(pathTo('StartGame2')).content('Start Game').appearance('filled').show(Not(GameRunning)).action(StartGame2_action).props),
     ),
         React.createElement(Block, elProps(pathTo('StatsLayout')).layout('horizontal wrapped').styles(elProps(pathTo('StatsLayout.Styles')).fontSize('24').justifyContent('space-between').width('100%').props).props,
@@ -202,16 +186,16 @@ You have 3 minutes to complete as many mazes as you can.`).props),
     ),
         React.createElement(Block, elProps(pathTo('ReadyPanel')).layout('vertical').show(Status == 'Ready').styles(elProps(pathTo('ReadyPanel.Styles')).padding('0').props).props,
             React.createElement(TextElement, elProps(pathTo('Title')).styles(elProps(pathTo('Title.Styles')).color('#039a03').fontFamily('Chelsea Market').fontSize('28').props).content('Welcome!').props),
-            React.createElement(TextElement, elProps(pathTo('ReadyText')).styles(elProps(pathTo('ReadyText.Styles')).fontSize('20').props).content(`Move your smiley face to the top of the board while keeping as many points as possible.
+            React.createElement(TextElement, elProps(pathTo('ReadyText')).styles(elProps(pathTo('ReadyText.Styles')).fontSize('20').props).content(`Move the chunks of a picture into the right positions.
 
-Click on empty adjacent squares to move the smiley, or click on an obstacle to move it.
+Click on two squares to swap them.
 
 Click Instructions for full details
 
 Or Start Game to dive straight in!`).props),
     ),
         React.createElement(Block, elProps(pathTo('PlayPanel')).layout('vertical').show(Or(Status == 'Playing', Status == 'Ended')).styles(elProps(pathTo('PlayPanel.Styles')).width('100%').padding('0').position('relative').maxWidth('400px').props).props,
-            React.createElement(Block, elProps(pathTo('PhotoGrid')).layout('vertical').styles(elProps(pathTo('PhotoGrid.Styles')).width('100%').maxWidth('500px').aspectRatio('1').position('relative').props).props,
+            React.createElement(Block, elProps(pathTo('PhotoGrid')).layout('horizontal wrapped').styles(elProps(pathTo('PhotoGrid.Styles')).width('100%').maxWidth('500px').aspectRatio(Width / Height).border('1px solid gray').gap('0').props).props,
             React.createElement(ItemSet, elProps(pathTo('Chunks')).itemContentComponent(MainPage_ChunksItem).props),
     ),
             React.createElement(Block, elProps(pathTo('RoundStatusBlock')).layout('horizontal').props,
