@@ -10,16 +10,15 @@ const MainPage_ChunksItem = React.memo(function MainPage_ChunksItem(props) {
     const {ItemSetItem, Block, Icon} = Elemento.components
     const {If, Eq, Floor} = Elemento.globalFunctions
     const _state = Elemento.useGetStore()
-    const app = _state.useObject('PhotoJigsaw')
-    const {FileUrl} = app
     const SelectedPiece = _state.useObject(parentPathWith('SelectedPiece'))
     const Width = _state.useObject(parentPathWith('Width'))
+    const PictureUrl = _state.useObject(parentPathWith('PictureUrl'))
     const ImageChunk = _state.setObject(pathTo('ImageChunk'), new Block.State(stateProps(pathTo('ImageChunk')).props))
     const canDragItem = undefined
     const styles = elProps(pathTo('Chunks.Styles')).borderColor(If(Eq($itemId, SelectedPiece), 'orange', 'transparent')).width(100 / Width + '%').aspectRatio('1').boxSizing('border-box').borderStyle('solid').borderWidth('2').position('relative').props
 
     return React.createElement(ItemSetItem, {path: props.path, item: $item, itemId: $itemId, index: $index, onClick, canDragItem, styles},
-        React.createElement(Block, elProps(pathTo('ImageChunk')).layout('vertical').styles(elProps(pathTo('ImageChunk.Styles')).backgroundImage('url(' + FileUrl('Car1.jpg') + ')').height('100%').width('100%').backgroundColor('lightgray').backgroundPositionX(-($item % Width) * 100 + '%').backgroundPositionY(-Floor($item / Width) * 100 + '%').backgroundSize(Width * 100 + '%').props).props),
+        React.createElement(Block, elProps(pathTo('ImageChunk')).layout('vertical').styles(elProps(pathTo('ImageChunk.Styles')).backgroundImage(PictureUrl).height('100%').width('100%').backgroundColor('lightgray').backgroundPositionX(-($item % Width) * 100 + '%').backgroundPositionY(-Floor($item / Width) * 100 + '%').backgroundSize(Width * 100 + '%').props).props),
         React.createElement(Icon, elProps(pathTo('OkIndicator')).iconName('check').show(Eq($item, $itemId)).styles(elProps(pathTo('OkIndicator.Styles')).color('green').backgroundColor('white').position('absolute').bottom('0').right('0').fontSize('16').borderRadius('50%').props).props),
     )
 })
@@ -28,7 +27,7 @@ const MainPage_ChunksItem = React.memo(function MainPage_ChunksItem(props) {
 function MainPage(props) {
     const pathTo = name => props.path + '.' + name
     const {Page, Data, Calculation, Timer, TextElement, Dialog, Button, Block, ItemSet} = Elemento.components
-    const {Eq, Or, Not, Max, Shuffle, Range, Count, If, ItemAt, Ceiling, IsNull} = Elemento.globalFunctions
+    const {Eq, Or, Not, Max, Shuffle, Range, If, WithoutItems, Len, RandomFrom, FlatList, Count, ItemAt, Ceiling, IsNull} = Elemento.globalFunctions
     const {Set, Reset, Update} = Elemento.appFunctions
     const _state = Elemento.useGetStore()
     const app = _state.useObject('PhotoJigsaw')
@@ -44,6 +43,16 @@ function MainPage(props) {
     const Height = _state.setObject(pathTo('Height'), new Data.State(stateProps(pathTo('Height')).value('5').props))
     const NumberOfPieces = _state.setObject(pathTo('NumberOfPieces'), new Calculation.State(stateProps(pathTo('NumberOfPieces')).value(Width * Height).props))
     const MovesAllowed = _state.setObject(pathTo('MovesAllowed'), new Calculation.State(stateProps(pathTo('MovesAllowed')).value(50).props))
+    const PointsPerPiece = _state.setObject(pathTo('PointsPerPiece'), new Calculation.State(stateProps(pathTo('PointsPerPiece')).value(2).props))
+    const PictureNames = _state.setObject(pathTo('PictureNames'), new Calculation.State(stateProps(pathTo('PictureNames')).value(['Car1.jpg', 'car2.jpg', 'city1.jpg', 'cocktails.jpg', 'coffee1.jpg', 'icecream.jpg', 'mountains1.jpg', 'mountains2.jpg', 'mountains3.jpg', 'whitehelmet.jpg']).props))
+    const PicturesUsed = _state.setObject(pathTo('PicturesUsed'), new Data.State(stateProps(pathTo('PicturesUsed')).value([]).props))
+    const GetNextPicture = _state.setObject(pathTo('GetNextPicture'), React.useCallback(wrapFn(pathTo('GetNextPicture'), 'calculation', () => {
+        let picsAvail = WithoutItems(PictureNames, PicturesUsed)
+        let picsToChoose = If(Len(picsAvail) > 0, picsAvail, PictureNames)
+        let pic = RandomFrom(picsToChoose)
+        Set(PicturesUsed, FlatList(PicturesUsed, pic))
+        return pic
+    }), [PictureNames, PicturesUsed]))
     const TimeLimit = _state.setObject(pathTo('TimeLimit'), new Data.State(stateProps(pathTo('TimeLimit')).value(180).props))
     const GameTimer_endAction = React.useCallback(wrapFn(pathTo('GameTimer'), 'endAction', async ($timer) => {
         await EndGame()
@@ -57,6 +66,8 @@ function MainPage(props) {
         Set(Status, 'Playing')
         return GameTimer.Start()
     }), [Status, GameTimer]))
+    const Picture = _state.setObject(pathTo('Picture'), new Data.State(stateProps(pathTo('Picture')).props))
+    const PictureUrl = _state.setObject(pathTo('PictureUrl'), new Calculation.State(stateProps(pathTo('PictureUrl')).value(`url(${FileUrl(Picture)})`).props))
     const Pieces = _state.setObject(pathTo('Pieces'), new Data.State(stateProps(pathTo('Pieces')).value(Range(0, Width * Height - 1)).props))
     const SelectedPiece = _state.setObject(pathTo('SelectedPiece'), new Data.State(stateProps(pathTo('SelectedPiece')).value(null).props))
     const ShowPuzzle = _state.setObject(pathTo('ShowPuzzle'), new Data.State(stateProps(pathTo('ShowPuzzle')).value(false).props))
@@ -64,9 +75,10 @@ function MainPage(props) {
     const MovesRemaining = _state.setObject(pathTo('MovesRemaining'), new Calculation.State(stateProps(pathTo('MovesRemaining')).value(Max(MovesAllowed - Moves, 0)).props))
     const IsRoundFailed = _state.setObject(pathTo('IsRoundFailed'), new Calculation.State(stateProps(pathTo('IsRoundFailed')).value(Eq(MovesRemaining, 0)).props))
     const SetupNewRound = _state.setObject(pathTo('SetupNewRound'), React.useCallback(wrapFn(pathTo('SetupNewRound'), 'calculation', () => {
+        Set(Picture, GetNextPicture())
         Set(Pieces, Shuffle(Range(0, Width * Height - 1)))
         return Reset(Moves, ShowPuzzle)
-    }), [Pieces, Width, Height, Moves, ShowPuzzle]))
+    }), [Picture, GetNextPicture, Pieces, Width, Height, Moves, ShowPuzzle]))
     const StartNewRound = _state.setObject(pathTo('StartNewRound'), React.useCallback(wrapFn(pathTo('StartNewRound'), 'calculation', () => {
         Reset(RoundSkipped)
         return SetupNewRound()
@@ -83,11 +95,14 @@ function MainPage(props) {
     const IsRoundComplete = _state.setObject(pathTo('IsRoundComplete'), new Calculation.State(stateProps(pathTo('IsRoundComplete')).value(Or(IsRoundWon, IsRoundFailed, RoundSkipped, Not(GameRunning))).props))
     const RoundInPlay = _state.setObject(pathTo('RoundInPlay'), new Calculation.State(stateProps(pathTo('RoundInPlay')).value(Not(IsRoundComplete)).props))
     const Points = _state.setObject(pathTo('Points'), React.useCallback(wrapFn(pathTo('Points'), 'calculation', () => {
-        return NumberCorrect + If(IsRoundWon, NumberCorrect, 0)
-    }), [NumberCorrect, IsRoundWon]))
+        let points = NumberCorrect * PointsPerPiece
+        let bonus = If(IsRoundWon, points, 0)
+        return points + bonus
+    }), [NumberCorrect, PointsPerPiece, IsRoundWon]))
     const EndRound = _state.setObject(pathTo('EndRound'), React.useCallback(wrapFn(pathTo('EndRound'), 'calculation', () => {
-        return Set(Score, Score + Points())
-    }), [Score, Points]))
+        Set(Score, Score + Points())
+        return If(RoundSkipped, () => StartNewRound())
+    }), [Score, Points, RoundSkipped, StartNewRound]))
     const WhenRoundComplete_whenTrueAction = React.useCallback(wrapFn(pathTo('WhenRoundComplete'), 'whenTrueAction', async () => {
         await EndRound()
     }), [EndRound])
@@ -164,32 +179,38 @@ function MainPage(props) {
         React.createElement(Data, elProps(pathTo('Height')).display(false).props),
         React.createElement(Calculation, elProps(pathTo('NumberOfPieces')).show(false).props),
         React.createElement(Calculation, elProps(pathTo('MovesAllowed')).show(false).props),
+        React.createElement(Calculation, elProps(pathTo('PointsPerPiece')).show(false).props),
+        React.createElement(Calculation, elProps(pathTo('PictureNames')).show(false).props),
+        React.createElement(Data, elProps(pathTo('PicturesUsed')).display(false).props),
         React.createElement(Data, elProps(pathTo('TimeLimit')).display(false).props),
+        React.createElement(Data, elProps(pathTo('Picture')).display(false).props),
+        React.createElement(Calculation, elProps(pathTo('PictureUrl')).show(false).props),
         React.createElement(Data, elProps(pathTo('Pieces')).display(false).props),
         React.createElement(Data, elProps(pathTo('SelectedPiece')).display(false).props),
         React.createElement(Data, elProps(pathTo('ShowPuzzle')).display(false).props),
         React.createElement(Data, elProps(pathTo('Moves')).display(false).props),
         React.createElement(Calculation, elProps(pathTo('NumberCorrect')).show(false).props),
         React.createElement(Dialog, elProps(pathTo('Instructions')).layout('vertical').showCloseButton(true).styles(elProps(pathTo('Instructions.Styles')).padding('2em').props).props,
-            React.createElement(TextElement, elProps(pathTo('InstructionsText')).allowHtml(true).content(`Move the jumbled chunks of a picture into the correct positions.
+            React.createElement(TextElement, elProps(pathTo('InstructionsText')).allowHtml(true).content(`Move the jumbled pieces of a picture into the correct positions.
 
 
 Study the original first - but not too long, the timer is running.  Then click Show Puzzle to start.  You can click Show Original later to switch between the two.
 
 
-Click on two squares one after the other to swap their positions. You have up to 50 moves on a picture.
+Click on two pieces one after the other to swap their positions. You have up to ${MovesAllowed} moves on a picture.
 
 
-You score a point for each chunk in the right position, and double if you get them all correct.
+When a piece is in the right position, there is a little tick mark in the corner.
+
+
+You score ${PointsPerPiece} points for each piece in the right position (tick in the corner) , and double if you get them all correct.
 
 
 If you get stuck and want to try another picture, click Skip this picture - you keep any points you have.
 
 
-Click New Picture to start on the next picture.
-
-
-You have 3 minutes - see how many you can do!`).props),
+You have 3 minutes - and if you finish the first one, click New Picture to start another.
+`).props),
             React.createElement(Button, elProps(pathTo('StartGame2')).content('Start Game').appearance('filled').show(Not(GameRunning)).action(StartGame2_action).props),
     ),
         React.createElement(Block, elProps(pathTo('StatsLayout')).layout('horizontal wrapped').styles(elProps(pathTo('StatsLayout.Styles')).fontSize('24').justifyContent('space-between').width('100%').props).props,
@@ -213,7 +234,7 @@ Or Start Game to dive straight in!`).props),
             React.createElement(Block, elProps(pathTo('PhotoGrid')).layout('horizontal wrapped').show(ShowPuzzle).styles(elProps(pathTo('PhotoGrid.Styles')).width('100%').maxWidth('500px').aspectRatio(Width / Height).border('1px solid gray').gap('0').props).props,
             React.createElement(ItemSet, elProps(pathTo('Chunks')).itemContentComponent(MainPage_ChunksItem).props),
     ),
-            React.createElement(Block, elProps(pathTo('PhotoOriginal')).layout('none').show(Not(ShowPuzzle)).styles(elProps(pathTo('PhotoOriginal.Styles')).width('100%').maxWidth('500px').aspectRatio(Width / Height).border('1px solid gray').backgroundImage('url(' + FileUrl('Car1.jpg') + ')').backgroundSize('cover').props).props),
+            React.createElement(Block, elProps(pathTo('PhotoOriginal')).layout('none').show(Not(ShowPuzzle)).styles(elProps(pathTo('PhotoOriginal.Styles')).width('100%').maxWidth('500px').aspectRatio(Width / Height).border('1px solid gray').backgroundImage(PictureUrl).backgroundSize('cover').props).props),
             React.createElement(Block, elProps(pathTo('RoundStatusBlock')).layout('horizontal').props,
             React.createElement(TextElement, elProps(pathTo('RoundInProgress')).allowHtml(true).show(RoundInPlay).content('Points so far ' + Points() + ' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moves remaining ' + MovesRemaining).props),
             React.createElement(TextElement, elProps(pathTo('RoundWon')).show(IsRoundWon).content('All correct! ' + Points() + ' points added').props),

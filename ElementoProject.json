@@ -146,7 +146,7 @@
               "properties": {
                 "action": true,
                 "calculation": {
-                  "expr": "Set(Pieces, Shuffle(Range(0, Width * Height - 1)))\nReset(Moves, ShowPuzzle)\n"
+                  "expr": "Set(Picture, GetNextPicture())\nSet(Pieces, Shuffle(Range(0, Width * Height - 1)))\nReset(Moves, ShowPuzzle)\n"
                 }
               },
               "kind": "Function"
@@ -179,7 +179,7 @@
               "properties": {
                 "action": true,
                 "calculation": {
-                  "expr": "Set(Score, Score + Points())"
+                  "expr": "Set(Score, Score + Points())\nIf(RoundSkipped, StartNewRound())"
                 }
               },
               "kind": "Function"
@@ -272,6 +272,48 @@
               "kind": "Calculation"
             },
             {
+              "id": "calculation_15",
+              "name": "Points Per Piece",
+              "properties": {
+                "calculation": {
+                  "expr": "2"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_13",
+              "name": "Picture Names",
+              "properties": {
+                "calculation": {
+                  "expr": "['Car1.jpg', 'car2.jpg', 'city1.jpg', 'cocktails.jpg', 'coffee1.jpg', 'icecream.jpg', 'mountains1.jpg', 'mountains2.jpg', 'mountains3.jpg', 'whitehelmet.jpg']"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "data_12",
+              "name": "Pictures Used",
+              "properties": {
+                "initialValue": {
+                  "expr": "[]"
+                }
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "function_11",
+              "name": "Get Next Picture",
+              "properties": {
+                "calculation": {
+                  "expr": "let picsAvail = WithoutItems(PictureNames, PicturesUsed)\nlet picsToChoose = If(Len(picsAvail) > 0, picsAvail, PictureNames)\nlet pic = RandomFrom(picsToChoose)\nSet(PicturesUsed, FlatList(PicturesUsed, pic))\npic"
+                }
+              },
+              "kind": "Function"
+            },
+            {
               "id": "data_6",
               "name": "Time Limit",
               "properties": {
@@ -280,6 +322,23 @@
                 }
               },
               "kind": "Data"
+            },
+            {
+              "id": "data_11",
+              "name": "Picture",
+              "properties": {},
+              "kind": "Data"
+            },
+            {
+              "id": "calculation_14",
+              "name": "Picture Url",
+              "properties": {
+                "calculation": {
+                  "expr": "`url(${FileUrl(Picture)})` "
+                },
+                "show": false
+              },
+              "kind": "Calculation"
             },
             {
               "id": "data_1",
@@ -337,7 +396,7 @@
               "name": "Points",
               "properties": {
                 "calculation": {
-                  "expr": "NumberCorrect + If(IsRoundWon, NumberCorrect, 0)"
+                  "expr": "let points = NumberCorrect * PointsPerPiece\nlet bonus = If(IsRoundWon, points, 0)\npoints + bonus"
                 }
               },
               "kind": "Function"
@@ -369,7 +428,9 @@
                   "id": "text_5",
                   "name": "Instructions Text",
                   "properties": {
-                    "content": "Move the jumbled chunks of a picture into the correct positions.\n\n\nStudy the original first - but not too long, the timer is running.  Then click Show Puzzle to start.  You can click Show Original later to switch between the two.\n\n\nClick on two squares one after the other to swap their positions. You have up to 50 moves on a picture.\n\n\nYou score a point for each chunk in the right position, and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nClick New Picture to start on the next picture.\n\n\nYou have 3 minutes - see how many you can do!",
+                    "content": {
+                      "expr": "`Move the jumbled pieces of a picture into the correct positions.\n\n\nStudy the original first - but not too long, the timer is running.  Then click Show Puzzle to start.  You can click Show Original later to switch between the two.\n\n\nClick on two pieces one after the other to swap their positions. You have up to ${MovesAllowed} moves on a picture.\n\n\nWhen a piece is in the right position, there is a little tick mark in the corner.\n\n\nYou score ${PointsPerPiece} points for each piece in the right position (tick in the corner) , and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nYou have 3 minutes - and if you finish the first one, click New Picture to start another.\n`"
+                    },
                     "allowHtml": true
                   },
                   "kind": "Text"
@@ -565,7 +626,7 @@
                           "properties": {
                             "styles": {
                               "backgroundImage": {
-                                "expr": "'url(' + FileUrl('Car1.jpg') + ')'"
+                                "expr": "PictureUrl"
                               },
                               "height": "100%",
                               "width": "100%",
@@ -621,7 +682,7 @@
                       },
                       "border": "1px solid gray",
                       "backgroundImage": {
-                        "expr": "'url(' + FileUrl('Car1.jpg') + ')'"
+                        "expr": "PictureUrl"
                       },
                       "backgroundSize": "cover"
                     },
@@ -810,7 +871,7 @@
                       "name": "Skip Round",
                       "properties": {
                         "action": {
-                          "expr": "Set(RoundSkipped, true)"
+                          "expr": "Set(RoundSkipped, true)\n"
                         },
                         "show": {
                           "expr": "RoundInPlay"

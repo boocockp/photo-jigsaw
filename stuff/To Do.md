@@ -5,7 +5,7 @@ To Do
 - ✅ Instructions
 - ✅ Show picture in clear at at start of each picture
 - ✅ View Picture at any time
-- Multiple pictures
+- ✅ Multiple pictures
 
 
 Left: 'calc(' + ($itemId % Width) * 20 + '% + ' + ($itemId % Width)* 3 + 'px)'
