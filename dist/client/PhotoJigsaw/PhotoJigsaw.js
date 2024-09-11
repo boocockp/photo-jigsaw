@@ -200,10 +200,7 @@ Study the original first - but not too long, the timer is running.  Then click S
 Click on two pieces one after the other to swap their positions. You have up to ${MovesAllowed} moves on a picture.
 
 
-When a piece is in the right position, there is a little tick mark in the corner.
-
-
-You score ${PointsPerPiece} points for each piece in the right position (tick in the corner) , and double if you get them all correct.
+You score ${PointsPerPiece} points for each piece in the right position (tick in the corner), and double if you get them all correct.
 
 
 If you get stuck and want to try another picture, click Skip this picture - you keep any points you have.

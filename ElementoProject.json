@@ -429,7 +429,7 @@
                   "name": "Instructions Text",
                   "properties": {
                     "content": {
-                      "expr": "`Move the jumbled pieces of a picture into the correct positions.\n\n\nStudy the original first - but not too long, the timer is running.  Then click Show Puzzle to start.  You can click Show Original later to switch between the two.\n\n\nClick on two pieces one after the other to swap their positions. You have up to ${MovesAllowed} moves on a picture.\n\n\nWhen a piece is in the right position, there is a little tick mark in the corner.\n\n\nYou score ${PointsPerPiece} points for each piece in the right position (tick in the corner) , and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nYou have 3 minutes - and if you finish the first one, click New Picture to start another.\n`"
+                      "expr": "`Move the jumbled pieces of a picture into the correct positions.\n\n\nStudy the original first - but not too long, the timer is running.  Then click Show Puzzle to start.  You can click Show Original later to switch between the two.\n\n\nClick on two pieces one after the other to swap their positions. You have up to ${MovesAllowed} moves on a picture.\n\n\nYou score ${PointsPerPiece} points for each piece in the right position (tick in the corner), and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nYou have 3 minutes - and if you finish the first one, click New Picture to start another.\n`"
                     },
                     "allowHtml": true
                   },
