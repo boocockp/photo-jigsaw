@@ -854,10 +854,10 @@
                       "left": "50%",
                       "translate": "-50% -50%",
                       "top": "50%",
-                      "backgroundColor": "lightblue",
+                      "backgroundColor": "white",
                       "padding": "1em",
                       "borderRadius": "10px",
-                      "border": "2px solid blue",
+                      "border": "2px solid green",
                       "opacity": "1",
                       "minWidth": "18em"
                     }
@@ -1050,10 +1050,7 @@
                   "id": "block_20",
                   "name": "Game Buttons",
                   "properties": {
-                    "layout": "horizontal",
-                    "show": {
-                      "expr": "true || AppWidth() > 375"
-                    }
+                    "layout": "horizontal"
                   },
                   "elements": [
                     {
@@ -1138,130 +1135,6 @@
                         "content": "Help"
                       },
                       "kind": "Button"
-                    }
-                  ],
-                  "kind": "Block"
-                },
-                {
-                  "id": "block_21",
-                  "name": "Game Icons",
-                  "properties": {
-                    "layout": "horizontal",
-                    "show": {
-                      "expr": "AppWidth() <= 0"
-                    }
-                  },
-                  "elements": [
-                    {
-                      "id": "icon_5",
-                      "name": "Skip Icon",
-                      "properties": {
-                        "iconName": "skip_next",
-                        "label": "Skip",
-                        "action": {
-                          "expr": "Set(RoundSkipped, true)"
-                        },
-                        "show": {
-                          "expr": "RoundInPlay"
-                        },
-                        "styles": {
-                          "fontSize": "32",
-                          "padding": "0"
-                        }
-                      },
-                      "kind": "Icon"
-                    },
-                    {
-                      "id": "icon_7",
-                      "name": "Start Icon",
-                      "properties": {
-                        "iconName": "play_arrow",
-                        "label": "Stop",
-                        "action": {
-                          "expr": "StartNewGame()"
-                        },
-                        "show": {
-                          "expr": "Not(GameRunning)"
-                        },
-                        "styles": {
-                          "fontSize": "32",
-                          "padding": "0"
-                        }
-                      },
-                      "kind": "Icon"
-                    },
-                    {
-                      "id": "icon_6",
-                      "name": "Stop Icon",
-                      "properties": {
-                        "iconName": "stop",
-                        "label": "Stop",
-                        "action": {
-                          "expr": "EndGame()"
-                        },
-                        "show": {
-                          "expr": "GameRunning"
-                        },
-                        "styles": {
-                          "fontSize": "32",
-                          "padding": "0"
-                        }
-                      },
-                      "kind": "Icon"
-                    },
-                    {
-                      "id": "icon_8",
-                      "name": "Pause Icon",
-                      "properties": {
-                        "iconName": "pause",
-                        "label": "Pause",
-                        "action": {
-                          "expr": "PauseGame()"
-                        },
-                        "show": {
-                          "expr": "Status == 'Playing'"
-                        },
-                        "styles": {
-                          "fontSize": "32",
-                          "padding": "0"
-                        }
-                      },
-                      "kind": "Icon"
-                    },
-                    {
-                      "id": "icon_9",
-                      "name": "Continue Icon",
-                      "properties": {
-                        "iconName": "play_circle_outline",
-                        "label": "Continue",
-                        "action": {
-                          "expr": "ContinueGame()"
-                        },
-                        "show": {
-                          "expr": "Status == 'Paused'"
-                        },
-                        "styles": {
-                          "fontSize": "32",
-                          "padding": "0"
-                        }
-                      },
-                      "kind": "Icon"
-                    },
-                    {
-                      "id": "icon_10",
-                      "name": "Instructions Icon",
-                      "properties": {
-                        "iconName": "help_outline",
-                        "label": "Help",
-                        "action": {
-                          "expr": "Instructions.Show()"
-                        },
-                        "styles": {
-                          "fontSize": "32",
-                          "padding": "0"
-                        }
-                      },
-                      "kind": "Icon"
                     }
                   ],
                   "kind": "Block"

@@ -150,7 +150,6 @@ function MainPage(props) {
     const PausePanel = _state.setObject(pathTo('PausePanel'), new Block.State(stateProps(pathTo('PausePanel')).props))
     const GameControls = _state.setObject(pathTo('GameControls'), new Block.State(stateProps(pathTo('GameControls')).props))
     const GameButtons = _state.setObject(pathTo('GameButtons'), new Block.State(stateProps(pathTo('GameButtons')).props))
-    const GameIcons = _state.setObject(pathTo('GameIcons'), new Block.State(stateProps(pathTo('GameIcons')).props))
     const StartGame2_action = React.useCallback(wrapFn(pathTo('StartGame2'), 'action', async () => {
         await StartNewGame()
         await Instructions.Close()
@@ -177,24 +176,6 @@ function MainPage(props) {
         await ContinueGame()
     }), [ContinueGame])
     const HelpButton_action = React.useCallback(wrapFn(pathTo('HelpButton'), 'action', async () => {
-        await Instructions.Show()
-    }), [Instructions])
-    const SkipIcon_action = React.useCallback(wrapFn(pathTo('SkipIcon'), 'action', () => {
-        Set(RoundSkipped, true)
-    }), [RoundSkipped])
-    const StartIcon_action = React.useCallback(wrapFn(pathTo('StartIcon'), 'action', async () => {
-        await StartNewGame()
-    }), [StartNewGame])
-    const StopIcon_action = React.useCallback(wrapFn(pathTo('StopIcon'), 'action', async () => {
-        await EndGame()
-    }), [EndGame])
-    const PauseIcon_action = React.useCallback(wrapFn(pathTo('PauseIcon'), 'action', async () => {
-        await PauseGame()
-    }), [PauseGame])
-    const ContinueIcon_action = React.useCallback(wrapFn(pathTo('ContinueIcon'), 'action', async () => {
-        await ContinueGame()
-    }), [ContinueGame])
-    const InstructionsIcon_action = React.useCallback(wrapFn(pathTo('InstructionsIcon'), 'action', async () => {
         await Instructions.Show()
     }), [Instructions])
     Elemento.elementoDebug(() => eval(Elemento.useDebugExpr()))
@@ -280,7 +261,7 @@ Or Start Game to dive straight in!`).props,
             React.createElement(TextElement, elProps(pathTo('Pointssofar')).styles(elProps(pathTo('Pointssofar.Styles')).props).content('Points so far ' + Points()).props),
             React.createElement(TextElement, elProps(pathTo('Movesleft')).styles(elProps(pathTo('Movesleft.Styles')).props).content(MovesRemaining + ' moves left ').props),
     ),
-            React.createElement(Block, elProps(pathTo('RoundCompletePanel')).layout('vertical').show(And(IsRoundComplete, GameRunning)).styles(elProps(pathTo('RoundCompletePanel.Styles')).position('absolute').left('50%').translate('-50% -50%').top('50%').backgroundColor('lightblue').padding('1em').borderRadius('10px').border('2px solid blue').opacity('1').minWidth('18em').props).props,
+            React.createElement(Block, elProps(pathTo('RoundCompletePanel')).layout('vertical').show(And(IsRoundComplete, GameRunning)).styles(elProps(pathTo('RoundCompletePanel.Styles')).position('absolute').left('50%').translate('-50% -50%').top('50%').backgroundColor('white').padding('1em').borderRadius('10px').border('2px solid green').opacity('1').minWidth('18em').props).props,
             React.createElement(TextElement, elProps(pathTo('RoundWon')).show(IsRoundWon).content('All correct! ' + Points() + ' points added').props),
             React.createElement(TextElement, elProps(pathTo('RoundFailed')).allowHtml(false).show(IsRoundFailed).content('Sorry - no moves left').props),
             React.createElement(TextElement, elProps(pathTo('RoundSkipped')).show(RoundSkipped).content('Picture skipped - ' + Points() + ' points').props),
@@ -298,21 +279,13 @@ Or Start Game to dive straight in!`).props,
     ),
         React.createElement(Block, elProps(pathTo('GameControls')).layout('horizontal').styles(elProps(pathTo('GameControls.Styles')).props).props,
             React.createElement(Icon, elProps(pathTo('SwitchView')).iconName('swap_horizontal_circle').action(SwitchView_action).show(GameRunning).styles(elProps(pathTo('SwitchView.Styles')).fontSize('36').padding('0').marginTop('-2').color('green').props).props),
-            React.createElement(Block, elProps(pathTo('GameButtons')).layout('horizontal').show(true || AppWidth() > 375).props,
+            React.createElement(Block, elProps(pathTo('GameButtons')).layout('horizontal').props,
             React.createElement(Button, elProps(pathTo('SkipRound')).content('Skip').appearance('outline').show(RoundInPlay).action(SkipRound_action).styles(elProps(pathTo('SkipRound.Styles')).props).props),
             React.createElement(Button, elProps(pathTo('StartGame')).content('Start').appearance('filled').show(Not(GameRunning)).action(StartGame_action).props),
             React.createElement(Button, elProps(pathTo('StopGame')).content('Stop').appearance('outline').show(GameRunning).action(StopGame_action).props),
             React.createElement(Button, elProps(pathTo('PauseGame')).content('Pause').appearance('outline').show(Status == 'Playing').action(PauseGame_action).props),
             React.createElement(Button, elProps(pathTo('ContinueGame')).content('Resume').appearance('outline').show(Status == 'Paused').action(ContinueGame_action).props),
             React.createElement(Button, elProps(pathTo('HelpButton')).content('Help').appearance('outline').action(HelpButton_action).props),
-    ),
-            React.createElement(Block, elProps(pathTo('GameIcons')).layout('horizontal').show(AppWidth() <= 0).props,
-            React.createElement(Icon, elProps(pathTo('SkipIcon')).iconName('skip_next').label('Skip').action(SkipIcon_action).show(RoundInPlay).styles(elProps(pathTo('SkipIcon.Styles')).fontSize('32').padding('0').props).props),
-            React.createElement(Icon, elProps(pathTo('StartIcon')).iconName('play_arrow').label('Stop').action(StartIcon_action).show(Not(GameRunning)).styles(elProps(pathTo('StartIcon.Styles')).fontSize('32').padding('0').props).props),
-            React.createElement(Icon, elProps(pathTo('StopIcon')).iconName('stop').label('Stop').action(StopIcon_action).show(GameRunning).styles(elProps(pathTo('StopIcon.Styles')).fontSize('32').padding('0').props).props),
-            React.createElement(Icon, elProps(pathTo('PauseIcon')).iconName('pause').label('Pause').action(PauseIcon_action).show(Status == 'Playing').styles(elProps(pathTo('PauseIcon.Styles')).fontSize('32').padding('0').props).props),
-            React.createElement(Icon, elProps(pathTo('ContinueIcon')).iconName('play_circle_outline').label('Continue').action(ContinueIcon_action).show(Status == 'Paused').styles(elProps(pathTo('ContinueIcon.Styles')).fontSize('32').padding('0').props).props),
-            React.createElement(Icon, elProps(pathTo('InstructionsIcon')).iconName('help_outline').label('Help').action(InstructionsIcon_action).styles(elProps(pathTo('InstructionsIcon.Styles')).fontSize('32').padding('0').props).props),
     ),
     ),
     )
