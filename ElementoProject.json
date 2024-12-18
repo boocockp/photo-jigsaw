@@ -13,62 +13,150 @@
         {
           "id": "page_1",
           "name": "Main Page",
-          "properties": {},
+          "properties": {
+            "styles": {
+              "gap": "1vh",
+              "padding": "1vh"
+            }
+          },
           "elements": [
             {
-              "id": "data_7",
-              "name": "Status",
+              "id": "function_12",
+              "name": "Send Score",
               "properties": {
-                "initialValue": {
-                  "expr": "'Ready'"
+                "input1": "score",
+                "action": true,
+                "calculation": {
+                  "expr": "Log('Send Score', score)\nSendMessage('parent', Record('score', score, 'url', CurrentUrl().text))"
                 }
               },
-              "kind": "Data"
+              "kind": "Function"
             },
             {
-              "id": "data_8",
-              "name": "Score",
+              "id": "function_13",
+              "name": "End Game",
               "properties": {
-                "initialValue": {
-                  "expr": "0"
+                "action": true,
+                "calculation": {
+                  "expr": "SendScore(Score)\nSet(Status, 'Ended') "
                 }
               },
-              "kind": "Data"
+              "kind": "Function"
             },
             {
-              "id": "data_9",
-              "name": "Round Skipped",
+              "id": "function_14",
+              "name": "Stop Game",
               "properties": {
-                "initialValue": {
-                  "expr": "false"
+                "action": true,
+                "calculation": {
+                  "expr": "GameTimer.Stop()\nEndGame()"
                 }
               },
-              "kind": "Data"
+              "kind": "Function"
             },
             {
-              "id": "calculation_4",
-              "name": "Is Round Won",
+              "id": "function_15",
+              "name": "Continue Game",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "Set(Status, 'Playing')\nGameTimer.Start()"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_16",
+              "name": "Pause Game",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "Set(Status, 'Paused')\nGameTimer.Stop()"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_17",
+              "name": "End Round",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "If(RoundScoresPoints(), Set(Score, Score + Points()))\nFinishRound()"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_18",
+              "name": "Start New Round",
               "properties": {
                 "calculation": {
-                  "expr": "Eq(NumberCorrect, NumberOfPieces)"
+                  "expr": "Reset(RoundSkipped)\nSetupNewRound()"
+                },
+                "action": true
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_19",
+              "name": "Start New Game",
+              "properties": {
+                "calculation": {
+                  "expr": "Reset(Score)\nReset(GameTimer)\nSet(Status, 'Playing')\nStartNewRound()\nGameTimer.Start()"
+                },
+                "action": true
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "timer_1",
+              "name": "Game Timer",
+              "properties": {
+                "period": 180,
+                "interval": 1,
+                "show": false,
+                "endAction": {
+                  "expr": "EndGame()"
+                }
+              },
+              "kind": "Timer"
+            },
+            {
+              "id": "calculation_17",
+              "name": "Game Running",
+              "properties": {
+                "calculation": {
+                  "expr": "Or(Status == 'Playing', Status == 'Paused')"
                 },
                 "show": false
               },
               "kind": "Calculation"
             },
             {
-              "id": "calculation_5",
-              "name": "Is Round Failed",
+              "id": "calculation_18",
+              "name": "Round In Play",
               "properties": {
                 "calculation": {
-                  "expr": "Eq(MovesRemaining, 0)"
+                  "expr": "Not(IsRoundComplete)"
                 },
                 "show": false
               },
               "kind": "Calculation"
             },
             {
-              "id": "calculation_6",
+              "id": "calculation_19",
+              "name": "Is Round Complete",
+              "properties": {
+                "calculation": {
+                  "expr": "Or(IsRoundWon, IsRoundFailed, RoundSkipped, Not(GameRunning))"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_20",
               "name": "When Round Complete",
               "properties": {
                 "calculation": {
@@ -82,140 +170,56 @@
               "kind": "Calculation"
             },
             {
-              "id": "calculation_7",
-              "name": "Is Round Complete",
+              "id": "calculation_21",
+              "name": "Is Round Failed",
               "properties": {
                 "calculation": {
-                  "expr": "Or(IsRoundWon, IsRoundFailed, RoundSkipped, Not(GameRunning))"
+                  "expr": "And(GameRunning, Not(RoundSkipped), RoundFailed())"
                 },
                 "show": false
               },
               "kind": "Calculation"
             },
             {
-              "id": "calculation_8",
-              "name": "Round In Play",
+              "id": "calculation_22",
+              "name": "Is Round Won",
               "properties": {
                 "calculation": {
-                  "expr": "Not(IsRoundComplete)"
+                  "expr": "And(GameRunning, Not(RoundSkipped), RoundCorrect())"
                 },
                 "show": false
               },
               "kind": "Calculation"
             },
             {
-              "id": "calculation_9",
-              "name": "Moves Remaining",
+              "id": "data_13",
+              "name": "Round Skipped",
               "properties": {
-                "show": false,
-                "calculation": {
-                  "expr": "Max(MovesAllowed - Moves, 0)"
+                "initialValue": {
+                  "expr": "false"
                 }
               },
-              "kind": "Calculation"
+              "kind": "Data"
             },
             {
-              "id": "calculation_10",
-              "name": "Game Running",
+              "id": "data_14",
+              "name": "Score",
               "properties": {
-                "calculation": {
-                  "expr": "Or(Status == 'Playing', Status == 'Paused')"
-                },
-                "show": false
-              },
-              "kind": "Calculation"
-            },
-            {
-              "id": "timer_2",
-              "name": "Game Timer",
-              "properties": {
-                "period": {
-                  "expr": "TimeLimit"
-                },
-                "interval": 1,
-                "show": false,
-                "endAction": {
-                  "expr": "EndGame()"
+                "initialValue": {
+                  "expr": "0"
                 }
               },
-              "kind": "Timer"
+              "kind": "Data"
             },
             {
-              "id": "function_3",
-              "name": "Setup New Round",
+              "id": "data_15",
+              "name": "Status",
               "properties": {
-                "action": true,
-                "calculation": {
-                  "expr": "Set(Picture, GetNextPicture())\nSet(Pieces, Shuffle(Range(0, Width * Height - 1)))\nReset(Moves, ShowPuzzle)\n"
+                "initialValue": {
+                  "expr": "'Ready'"
                 }
               },
-              "kind": "Function"
-            },
-            {
-              "id": "function_4",
-              "name": "Start New Game",
-              "properties": {
-                "calculation": {
-                  "expr": "Reset(Score)\nReset(GameTimer)\nSet(Status, 'Playing')\nStartNewRound()\nGameTimer.Start()"
-                },
-                "action": true
-              },
-              "kind": "Function"
-            },
-            {
-              "id": "function_5",
-              "name": "Start New Round",
-              "properties": {
-                "calculation": {
-                  "expr": "Reset(RoundSkipped)\nSetupNewRound()"
-                },
-                "action": true
-              },
-              "kind": "Function"
-            },
-            {
-              "id": "function_6",
-              "name": "End Round",
-              "properties": {
-                "action": true,
-                "calculation": {
-                  "expr": "Set(Score, Score + Points())\nIf(RoundSkipped, StartNewRound())"
-                }
-              },
-              "kind": "Function"
-            },
-            {
-              "id": "function_7",
-              "name": "End Game",
-              "properties": {
-                "action": true,
-                "calculation": {
-                  "expr": "Set(Status, 'Ended')"
-                }
-              },
-              "kind": "Function"
-            },
-            {
-              "id": "function_8",
-              "name": "Pause Game",
-              "properties": {
-                "action": true,
-                "calculation": {
-                  "expr": "Set(Status, 'Paused')\nGameTimer.Stop()"
-                }
-              },
-              "kind": "Function"
-            },
-            {
-              "id": "function_9",
-              "name": "Continue Game",
-              "properties": {
-                "action": true,
-                "calculation": {
-                  "expr": "Set(Status, 'Playing')\nGameTimer.Start()"
-                }
-              },
-              "kind": "Function"
+              "kind": "Data"
             },
             {
               "id": "text_1",
@@ -223,7 +227,9 @@
               "properties": {
                 "content": "Photo Jigsaw",
                 "styles": {
-                  "fontSize": 24,
+                  "fontSize": {
+                    "expr": "Min(24, AppWidth()/20)+'px'"
+                  },
                   "fontFamily": "Impact",
                   "color": "Orange",
                   "letterSpacing": "2px"
@@ -250,6 +256,17 @@
               "kind": "Data"
             },
             {
+              "id": "calculation_16",
+              "name": "Game Running Or Ended",
+              "properties": {
+                "calculation": {
+                  "expr": "Or(GameRunning, Status == 'Ended')"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
               "id": "calculation_11",
               "name": "Number Of Pieces",
               "properties": {
@@ -268,6 +285,17 @@
                   "expr": "50"
                 },
                 "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_9",
+              "name": "Moves Remaining",
+              "properties": {
+                "show": false,
+                "calculation": {
+                  "expr": "Max(MovesAllowed - Moves, 0)"
+                }
               },
               "kind": "Calculation"
             },
@@ -304,11 +332,79 @@
               "kind": "Data"
             },
             {
+              "id": "function_3",
+              "name": "Setup New Round",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "Set(Picture, GetNextPicture())\nSet(Pieces, Shuffle(Range(0, Width * Height - 1)))\nReset(Moves, ShowPuzzle)\n"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_20",
+              "name": "Finish Round",
+              "properties": {},
+              "kind": "Function"
+            },
+            {
+              "id": "function_21",
+              "name": "Round Correct",
+              "properties": {
+                "calculation": {
+                  "expr": "Eq(NumberCorrect, NumberOfPieces)"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_22",
+              "name": "Round Failed",
+              "properties": {
+                "calculation": {
+                  "expr": "Eq(MovesRemaining, 0)"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_23",
+              "name": "Round Scores Points",
+              "properties": {
+                "calculation": {
+                  "expr": "NumberCorrect > 0"
+                }
+              },
+              "kind": "Function"
+            },
+            {
               "id": "function_11",
               "name": "Get Next Picture",
               "properties": {
                 "calculation": {
                   "expr": "let picsAvail = WithoutItems(PictureNames, PicturesUsed)\nlet picsToChoose = If(Len(picsAvail) > 0, picsAvail, PictureNames)\nlet pic = RandomFrom(picsToChoose)\nSet(PicturesUsed, FlatList(PicturesUsed, pic))\npic"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_1",
+              "name": "Swap Selected",
+              "properties": {
+                "calculation": {
+                  "expr": "let piece1 = ItemAt(Pieces, SelectedPiece)\nlet piece2 = ItemAt(Pieces, selected2)\nUpdate(Pieces, {[SelectedPiece.value]: piece2, [selected2]: piece1})\nReset(SelectedPiece)\nSet(Moves, Moves + 1)"
+                },
+                "input1": "selected2"
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_10",
+              "name": "Points",
+              "properties": {
+                "calculation": {
+                  "expr": "let points = NumberCorrect * PointsPerPiece\nlet bonus = If(IsRoundWon, points, 0)\npoints + bonus"
                 }
               },
               "kind": "Function"
@@ -392,27 +488,6 @@
               "kind": "Calculation"
             },
             {
-              "id": "function_10",
-              "name": "Points",
-              "properties": {
-                "calculation": {
-                  "expr": "let points = NumberCorrect * PointsPerPiece\nlet bonus = If(IsRoundWon, points, 0)\npoints + bonus"
-                }
-              },
-              "kind": "Function"
-            },
-            {
-              "id": "function_1",
-              "name": "Swap Selected",
-              "properties": {
-                "calculation": {
-                  "expr": "let piece1 = ItemAt(Pieces, SelectedPiece)\nlet piece2 = ItemAt(Pieces, selected2)\nUpdate(Pieces, {[SelectedPiece.value]: piece2, [selected2]: piece1})\nReset(SelectedPiece)\nSet(Moves, Moves + 1)"
-                },
-                "input1": "selected2"
-              },
-              "kind": "Function"
-            },
-            {
               "id": "dialog_1",
               "name": "Instructions",
               "properties": {
@@ -429,10 +504,26 @@
                   "name": "Instructions Text",
                   "properties": {
                     "content": {
-                      "expr": "`Move the jumbled pieces of a picture into the correct positions.\n\n\nStudy the original first - but not too long, the timer is running.  Then click Show Puzzle to start.  You can click Show Original later to switch between the two.\n\n\nClick on two pieces one after the other to swap their positions. You have up to ${MovesAllowed} moves on a picture.\n\n\nYou score ${PointsPerPiece} points for each piece in the right position (tick in the corner), and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nYou have 3 minutes - and if you finish the first one, click New Picture to start another.\n`"
+                      "expr": "`Move the jumbled pieces of a picture into the correct positions.\n\n\nStudy the original first - but not too long, the timer is running.  \n\nClick @SwitchView@ to start.  You can click @SwitchView@ later to switch between the original and the puzzle.\n\n\nClick on two pieces one after the other to swap their positions. You have up to ${MovesAllowed} moves on a picture.\n\n\nYou score ${PointsPerPiece} points for each piece in the right position (tick in the corner), and double if you get them all correct.\n\n\nIf you get stuck and want to try another picture, click Skip this picture - you keep any points you have.\n\n\nYou have 3 minutes - and if you finish the first one, click New Picture to start another.\n`"
                     },
                     "allowHtml": true
                   },
+                  "elements": [
+                    {
+                      "id": "icon_14",
+                      "name": "Switch View",
+                      "properties": {
+                        "iconName": "swap_horizontal_circle",
+                        "styles": {
+                          "fontSize": "32",
+                          "color": "green",
+                          "top": "4px",
+                          "position": "relative"
+                        }
+                      },
+                      "kind": "Icon"
+                    }
+                  ],
                   "kind": "Text"
                 },
                 {
@@ -459,7 +550,9 @@
               "properties": {
                 "layout": "horizontal wrapped",
                 "styles": {
-                  "fontSize": "24",
+                  "fontSize": {
+                    "expr": "Min(24, AppWidth()/20)+'px'"
+                  },
                   "justifyContent": "space-between",
                   "width": "100%"
                 }
@@ -543,17 +636,34 @@
                       "fontSize": "28"
                     }
                   },
+                  "elements": [],
                   "kind": "Text"
                 },
                 {
                   "id": "text_10",
                   "name": "Ready Text",
                   "properties": {
-                    "content": "Move the chunks of a picture into the right positions.\n\nView the original, then click Show Puzzle to start.\n\nClick on two squares to swap them.\n\nClick Instructions for full details\n\nOr Start Game to dive straight in!",
+                    "content": "Move the chunks of a picture into the right positions.\n\nClick @SwitchView@ to switch between the original and the puzzle.\n\nClick on two squares to swap them.\n\nClick Help for full details\n\nOr Start Game to dive straight in!",
                     "styles": {
                       "fontSize": "20"
                     }
                   },
+                  "elements": [
+                    {
+                      "id": "icon_13",
+                      "name": "Switch View",
+                      "properties": {
+                        "iconName": "swap_horizontal_circle",
+                        "styles": {
+                          "fontSize": "32",
+                          "color": "green",
+                          "top": "4px",
+                          "position": "relative"
+                        }
+                      },
+                      "kind": "Icon"
+                    }
+                  ],
                   "kind": "Text"
                 }
               ],
@@ -571,7 +681,8 @@
                   "width": "100%",
                   "padding": "0",
                   "position": "relative",
-                  "maxWidth": "400px"
+                  "maxWidth": "400px",
+                  "gap": "0"
                 }
               },
               "elements": [
@@ -684,7 +795,8 @@
                       "backgroundImage": {
                         "expr": "PictureUrl"
                       },
-                      "backgroundSize": "cover"
+                      "backgroundSize": "cover",
+                      "boxSizing": "border-box"
                     },
                     "layout": "none",
                     "show": {
@@ -695,28 +807,64 @@
                   "kind": "Block"
                 },
                 {
-                  "id": "block_9",
-                  "name": "Round Status Block",
+                  "id": "block_22",
+                  "name": "Round Status",
                   "properties": {
-                    "layout": "horizontal"
+                    "layout": "horizontal wrapped",
+                    "styles": {
+                      "justifyContent": "space-between",
+                      "width": "100%"
+                    }
                   },
                   "elements": [
                     {
-                      "id": "text_12",
-                      "name": "Round In Progress",
+                      "id": "text_25",
+                      "name": "Points so far",
                       "properties": {
                         "content": {
-                          "expr": "'Points so far ' + Points() + ' &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moves remaining ' + MovesRemaining"
+                          "expr": "'Points so far ' + Points()"
                         },
-                        "show": {
-                          "expr": "RoundInPlay"
-                        },
-                        "allowHtml": true
+                        "styles": {}
                       },
                       "kind": "Text"
                     },
                     {
-                      "id": "text_13",
+                      "id": "text_26",
+                      "name": "Moves left",
+                      "properties": {
+                        "content": {
+                          "expr": "MovesRemaining + ' moves left '"
+                        },
+                        "styles": {}
+                      },
+                      "kind": "Text"
+                    }
+                  ],
+                  "kind": "Block"
+                },
+                {
+                  "id": "block_19",
+                  "name": "Round Complete Panel",
+                  "properties": {
+                    "show": {
+                      "expr": "And(IsRoundComplete, GameRunning)"
+                    },
+                    "styles": {
+                      "position": "absolute",
+                      "left": "50%",
+                      "translate": "-50% -50%",
+                      "top": "50%",
+                      "backgroundColor": "lightblue",
+                      "padding": "1em",
+                      "borderRadius": "10px",
+                      "border": "2px solid blue",
+                      "opacity": "1",
+                      "minWidth": "18em"
+                    }
+                  },
+                  "elements": [
+                    {
+                      "id": "text_22",
                       "name": "Round Won",
                       "properties": {
                         "content": {
@@ -729,7 +877,7 @@
                       "kind": "Text"
                     },
                     {
-                      "id": "text_14",
+                      "id": "text_23",
                       "name": "Round Failed",
                       "properties": {
                         "content": {
@@ -743,7 +891,7 @@
                       "kind": "Text"
                     },
                     {
-                      "id": "text_15",
+                      "id": "text_24",
                       "name": "Round Skipped",
                       "properties": {
                         "content": {
@@ -756,7 +904,7 @@
                       "kind": "Text"
                     },
                     {
-                      "id": "button_3",
+                      "id": "button_12",
                       "name": "New Round",
                       "properties": {
                         "action": {
@@ -785,12 +933,12 @@
                       "left": "50%",
                       "translate": "-50% -50%",
                       "top": "50%",
-                      "backgroundColor": "lightblue",
+                      "backgroundColor": "white",
                       "padding": "1em",
                       "borderRadius": "10px",
-                      "border": "2px solid blue",
+                      "border": "2px solid green",
                       "opacity": "1",
-                      "minWidth": "20em"
+                      "minWidth": "18em"
                     }
                   },
                   "elements": [
@@ -821,64 +969,9 @@
                       "id": "text_18",
                       "name": "What next",
                       "properties": {
-                        "content": "Click Start Game to have another go"
+                        "content": "Click Start to play again"
                       },
                       "kind": "Text"
-                    }
-                  ],
-                  "kind": "Block"
-                },
-                {
-                  "id": "block_11",
-                  "name": "Round Controls",
-                  "properties": {
-                    "layout": "horizontal",
-                    "styles": {
-                      "justifyContent": "space-between",
-                      "width": "100%"
-                    }
-                  },
-                  "elements": [
-                    {
-                      "id": "button_11",
-                      "name": "Show Puzzle",
-                      "properties": {
-                        "action": {
-                          "expr": "Set(ShowPuzzle, true)"
-                        },
-                        "show": {
-                          "expr": "Not(ShowPuzzle)"
-                        },
-                        "appearance": "filled"
-                      },
-                      "kind": "Button"
-                    },
-                    {
-                      "id": "button_10",
-                      "name": "Show Original",
-                      "properties": {
-                        "action": {
-                          "expr": "Set(ShowPuzzle, false)"
-                        },
-                        "show": {
-                          "expr": "ShowPuzzle"
-                        }
-                      },
-                      "kind": "Button"
-                    },
-                    {
-                      "id": "button_4",
-                      "name": "Skip Round",
-                      "properties": {
-                        "action": {
-                          "expr": "Set(RoundSkipped, true)\n"
-                        },
-                        "show": {
-                          "expr": "RoundInPlay"
-                        },
-                        "content": "Skip this picture"
-                      },
-                      "kind": "Button"
                     }
                   ],
                   "kind": "Block"
@@ -915,7 +1008,7 @@
                   "id": "text_20",
                   "name": "Pause Text",
                   "properties": {
-                    "content": "Click Continue Game to carry on",
+                    "content": "Click Continue to carry on",
                     "styles": {
                       "fontSize": "20"
                     }
@@ -930,73 +1023,248 @@
               "name": "Game Controls",
               "properties": {
                 "layout": "horizontal",
-                "styles": {
-                  "paddingTop": "20px"
-                }
+                "styles": {}
               },
               "elements": [
                 {
-                  "id": "button_5",
-                  "name": "Start Game",
+                  "id": "icon_12",
+                  "name": "Switch View",
                   "properties": {
+                    "iconName": "swap_horizontal_circle",
                     "action": {
-                      "expr": "StartNewGame()"
+                      "expr": "Set(ShowPuzzle, Not(ShowPuzzle))"
                     },
-                    "show": {
-                      "expr": "Not(GameRunning)"
-                    },
-                    "appearance": "filled"
-                  },
-                  "kind": "Button"
-                },
-                {
-                  "id": "button_6",
-                  "name": "Stop Game",
-                  "properties": {
-                    "action": {
-                      "expr": "EndGame()"
+                    "styles": {
+                      "fontSize": "36",
+                      "padding": "0",
+                      "marginTop": "-2",
+                      "color": "green"
                     },
                     "show": {
                       "expr": "GameRunning"
                     }
                   },
-                  "kind": "Button"
+                  "kind": "Icon"
                 },
                 {
-                  "id": "button_7",
-                  "name": "Pause Game",
+                  "id": "block_20",
+                  "name": "Game Buttons",
                   "properties": {
-                    "action": {
-                      "expr": "PauseGame()"
-                    },
+                    "layout": "horizontal",
                     "show": {
-                      "expr": "Status == 'Playing'"
+                      "expr": "true || AppWidth() > 375"
                     }
                   },
-                  "kind": "Button"
-                },
-                {
-                  "id": "button_8",
-                  "name": "Continue Game",
-                  "properties": {
-                    "action": {
-                      "expr": "ContinueGame()"
+                  "elements": [
+                    {
+                      "id": "button_13",
+                      "name": "Skip Round",
+                      "properties": {
+                        "action": {
+                          "expr": "Set(RoundSkipped, true)\n"
+                        },
+                        "show": {
+                          "expr": "RoundInPlay"
+                        },
+                        "content": "Skip",
+                        "styles": {}
+                      },
+                      "kind": "Button"
                     },
-                    "show": {
-                      "expr": "Status == 'Paused'"
+                    {
+                      "id": "button_18",
+                      "name": "Start Game",
+                      "properties": {
+                        "action": {
+                          "expr": "StartNewGame()"
+                        },
+                        "show": {
+                          "expr": "Not(GameRunning)"
+                        },
+                        "appearance": "filled",
+                        "content": "Start"
+                      },
+                      "kind": "Button"
+                    },
+                    {
+                      "id": "button_17",
+                      "name": "Stop Game",
+                      "properties": {
+                        "action": {
+                          "expr": "StopGame()"
+                        },
+                        "show": {
+                          "expr": "GameRunning"
+                        },
+                        "content": "Stop"
+                      },
+                      "kind": "Button"
+                    },
+                    {
+                      "id": "button_16",
+                      "name": "Pause Game",
+                      "properties": {
+                        "action": {
+                          "expr": "PauseGame()"
+                        },
+                        "show": {
+                          "expr": "Status == 'Playing'"
+                        },
+                        "content": "Pause"
+                      },
+                      "kind": "Button"
+                    },
+                    {
+                      "id": "button_15",
+                      "name": "Continue Game",
+                      "properties": {
+                        "action": {
+                          "expr": "ContinueGame()"
+                        },
+                        "show": {
+                          "expr": "Status == 'Paused'"
+                        },
+                        "content": "Resume"
+                      },
+                      "kind": "Button"
+                    },
+                    {
+                      "id": "button_19",
+                      "name": "Help Button",
+                      "properties": {
+                        "action": {
+                          "expr": "Instructions.Show()"
+                        },
+                        "content": "Help"
+                      },
+                      "kind": "Button"
                     }
-                  },
-                  "kind": "Button"
+                  ],
+                  "kind": "Block"
                 },
                 {
-                  "id": "button_9",
-                  "name": "Instructions",
+                  "id": "block_21",
+                  "name": "Game Icons",
                   "properties": {
-                    "action": {
-                      "expr": "Instructions.Show()"
+                    "layout": "horizontal",
+                    "show": {
+                      "expr": "AppWidth() <= 0"
                     }
                   },
-                  "kind": "Button"
+                  "elements": [
+                    {
+                      "id": "icon_5",
+                      "name": "Skip Icon",
+                      "properties": {
+                        "iconName": "skip_next",
+                        "label": "Skip",
+                        "action": {
+                          "expr": "Set(RoundSkipped, true)"
+                        },
+                        "show": {
+                          "expr": "RoundInPlay"
+                        },
+                        "styles": {
+                          "fontSize": "32",
+                          "padding": "0"
+                        }
+                      },
+                      "kind": "Icon"
+                    },
+                    {
+                      "id": "icon_7",
+                      "name": "Start Icon",
+                      "properties": {
+                        "iconName": "play_arrow",
+                        "label": "Stop",
+                        "action": {
+                          "expr": "StartNewGame()"
+                        },
+                        "show": {
+                          "expr": "Not(GameRunning)"
+                        },
+                        "styles": {
+                          "fontSize": "32",
+                          "padding": "0"
+                        }
+                      },
+                      "kind": "Icon"
+                    },
+                    {
+                      "id": "icon_6",
+                      "name": "Stop Icon",
+                      "properties": {
+                        "iconName": "stop",
+                        "label": "Stop",
+                        "action": {
+                          "expr": "EndGame()"
+                        },
+                        "show": {
+                          "expr": "GameRunning"
+                        },
+                        "styles": {
+                          "fontSize": "32",
+                          "padding": "0"
+                        }
+                      },
+                      "kind": "Icon"
+                    },
+                    {
+                      "id": "icon_8",
+                      "name": "Pause Icon",
+                      "properties": {
+                        "iconName": "pause",
+                        "label": "Pause",
+                        "action": {
+                          "expr": "PauseGame()"
+                        },
+                        "show": {
+                          "expr": "Status == 'Playing'"
+                        },
+                        "styles": {
+                          "fontSize": "32",
+                          "padding": "0"
+                        }
+                      },
+                      "kind": "Icon"
+                    },
+                    {
+                      "id": "icon_9",
+                      "name": "Continue Icon",
+                      "properties": {
+                        "iconName": "play_circle_outline",
+                        "label": "Continue",
+                        "action": {
+                          "expr": "ContinueGame()"
+                        },
+                        "show": {
+                          "expr": "Status == 'Paused'"
+                        },
+                        "styles": {
+                          "fontSize": "32",
+                          "padding": "0"
+                        }
+                      },
+                      "kind": "Icon"
+                    },
+                    {
+                      "id": "icon_10",
+                      "name": "Instructions Icon",
+                      "properties": {
+                        "iconName": "help_outline",
+                        "label": "Help",
+                        "action": {
+                          "expr": "Instructions.Show()"
+                        },
+                        "styles": {
+                          "fontSize": "32",
+                          "padding": "0"
+                        }
+                      },
+                      "kind": "Icon"
+                    }
+                  ],
+                  "kind": "Block"
                 }
               ],
               "kind": "Block"
