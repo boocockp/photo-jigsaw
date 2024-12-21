@@ -38,7 +38,7 @@
               "properties": {
                 "action": true,
                 "calculation": {
-                  "expr": "SendScore(Score)\nSet(Status, 'Ended') "
+                  "expr": "AddRoundScore()\nSendScore(Score)\nSet(Status, 'Ended') "
                 }
               },
               "kind": "Function"
@@ -82,7 +82,19 @@
               "properties": {
                 "action": true,
                 "calculation": {
-                  "expr": "If(RoundScoresPoints(), Set(Score, Score + Points()))\nFinishRound()"
+                  "expr": "AddRoundScore()\nFinishRound()"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_24",
+              "name": "Add Round Score",
+              "notes": "Ensure the round score is added exactly once",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "let needToAddScore = And(Not(RoundScoreAdded), RoundScoresPoints())\nIf(needToAddScore, Set(Score, Score + Points()))\nSet(RoundScoreAdded, true)"
                 }
               },
               "kind": "Function"
@@ -92,7 +104,7 @@
               "name": "Start New Round",
               "properties": {
                 "calculation": {
-                  "expr": "Reset(RoundSkipped)\nSetupNewRound()"
+                  "expr": "Reset(RoundSkipped, RoundScoreAdded)\nSetupNewRound()"
                 },
                 "action": true
               },
@@ -194,6 +206,16 @@
             {
               "id": "data_13",
               "name": "Round Skipped",
+              "properties": {
+                "initialValue": {
+                  "expr": "false"
+                }
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "data_16",
+              "name": "Round Score Added",
               "properties": {
                 "initialValue": {
                   "expr": "false"

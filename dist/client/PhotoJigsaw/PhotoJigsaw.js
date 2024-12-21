@@ -27,7 +27,7 @@ const MainPage_ChunksItem = React.memo(function MainPage_ChunksItem(props) {
 function MainPage(props) {
     const pathTo = name => props.path + '.' + name
     const {Page, Timer, Calculation, Data, TextElement, Dialog, Icon, Button, Block, ItemSet} = Elemento.components
-    const {Log, Record, If, Or, Not, And, Min, Max, Shuffle, Range, Eq, WithoutItems, Len, RandomFrom, FlatList, ItemAt, Count, Ceiling, IsNull} = Elemento.globalFunctions
+    const {Log, Record, And, Not, If, Or, Min, Max, Shuffle, Range, Eq, WithoutItems, Len, RandomFrom, FlatList, ItemAt, Count, Ceiling, IsNull} = Elemento.globalFunctions
     const {Set, Reset, Update} = Elemento.appFunctions
     const _state = Elemento.useGetStore()
     const app = _state.useObject('PhotoJigsaw')
@@ -37,28 +37,9 @@ function MainPage(props) {
         await SendMessage('parent', Record('score', score, 'url', (await CurrentUrl()).text))
     }), []))
     const RoundSkipped = _state.setObject(pathTo('RoundSkipped'), new Data.State(stateProps(pathTo('RoundSkipped')).value(false).props))
+    const RoundScoreAdded = _state.setObject(pathTo('RoundScoreAdded'), new Data.State(stateProps(pathTo('RoundScoreAdded')).value(false).props))
     const Score = _state.setObject(pathTo('Score'), new Data.State(stateProps(pathTo('Score')).value(0).props))
     const Status = _state.setObject(pathTo('Status'), new Data.State(stateProps(pathTo('Status')).value('Ready').props))
-    const EndGame = _state.setObject(pathTo('EndGame'), React.useCallback(wrapFn(pathTo('EndGame'), 'calculation', async () => {
-        await SendScore(Score)
-        Set(Status, 'Ended')
-    }), [SendScore, Score, Status]))
-    const GameTimer_endAction = React.useCallback(wrapFn(pathTo('GameTimer'), 'endAction', async ($timer) => {
-        await EndGame()
-    }), [EndGame])
-    const GameTimer = _state.setObject(pathTo('GameTimer'), new Timer.State(stateProps(pathTo('GameTimer')).period(180).interval(1).endAction(GameTimer_endAction).props))
-    const StopGame = _state.setObject(pathTo('StopGame'), React.useCallback(wrapFn(pathTo('StopGame'), 'calculation', async () => {
-        await GameTimer.Stop()
-        await EndGame()
-    }), [GameTimer, EndGame]))
-    const ContinueGame = _state.setObject(pathTo('ContinueGame'), React.useCallback(wrapFn(pathTo('ContinueGame'), 'calculation', async () => {
-        Set(Status, 'Playing')
-        await GameTimer.Start()
-    }), [Status, GameTimer]))
-    const PauseGame = _state.setObject(pathTo('PauseGame'), React.useCallback(wrapFn(pathTo('PauseGame'), 'calculation', async () => {
-        Set(Status, 'Paused')
-        await GameTimer.Stop()
-    }), [Status, GameTimer]))
     const GameRunning = _state.setObject(pathTo('GameRunning'), new Calculation.State(stateProps(pathTo('GameRunning')).value(Or(Status == 'Playing', Status == 'Paused')).props))
     const Width = _state.setObject(pathTo('Width'), new Data.State(stateProps(pathTo('Width')).value(5).props))
     const Height = _state.setObject(pathTo('Height'), new Data.State(stateProps(pathTo('Height')).value('5').props))
@@ -90,16 +71,9 @@ function MainPage(props) {
         Reset(Moves, ShowPuzzle)
     }), [Picture, GetNextPicture, Pieces, Width, Height, Moves, ShowPuzzle]))
     const StartNewRound = _state.setObject(pathTo('StartNewRound'), React.useCallback(wrapFn(pathTo('StartNewRound'), 'calculation', async () => {
-        Reset(RoundSkipped)
+        Reset(RoundSkipped, RoundScoreAdded)
         await SetupNewRound()
-    }), [RoundSkipped, SetupNewRound]))
-    const StartNewGame = _state.setObject(pathTo('StartNewGame'), React.useCallback(wrapFn(pathTo('StartNewGame'), 'calculation', async () => {
-        Reset(Score)
-        Reset(GameTimer)
-        Set(Status, 'Playing')
-        await StartNewRound()
-        await GameTimer.Start()
-    }), [Score, GameTimer, Status, StartNewRound]))
+    }), [RoundSkipped, RoundScoreAdded, SetupNewRound]))
     const RoundFailed = _state.setObject(pathTo('RoundFailed'), React.useCallback(wrapFn(pathTo('RoundFailed'), 'calculation', () => {
         return Eq(MovesRemaining, 0)
     }), [MovesRemaining]))
@@ -126,10 +100,43 @@ function MainPage(props) {
         let bonus = If(IsRoundWon, points, 0)
         return points + bonus
     }), [NumberCorrect, PointsPerPiece, IsRoundWon]))
+    const AddRoundScore = _state.setObject(pathTo('AddRoundScore'), React.useCallback(wrapFn(pathTo('AddRoundScore'), 'calculation', async () => {
+        let needToAddScore = And(Not(RoundScoreAdded), RoundScoresPoints())
+        await If(needToAddScore, () => Set(Score, Score + Points()))
+        Set(RoundScoreAdded, true)
+    }), [RoundScoreAdded, RoundScoresPoints, Score, Points]))
+    const EndGame = _state.setObject(pathTo('EndGame'), React.useCallback(wrapFn(pathTo('EndGame'), 'calculation', async () => {
+        await AddRoundScore()
+        await SendScore(Score)
+        Set(Status, 'Ended')
+    }), [AddRoundScore, SendScore, Score, Status]))
     const EndRound = _state.setObject(pathTo('EndRound'), React.useCallback(wrapFn(pathTo('EndRound'), 'calculation', async () => {
-        await If(RoundScoresPoints(), () => Set(Score, Score + Points()))
+        await AddRoundScore()
         FinishRound()
-    }), [RoundScoresPoints, Score, Points, FinishRound]))
+    }), [AddRoundScore, FinishRound]))
+    const GameTimer_endAction = React.useCallback(wrapFn(pathTo('GameTimer'), 'endAction', async ($timer) => {
+        await EndGame()
+    }), [EndGame])
+    const GameTimer = _state.setObject(pathTo('GameTimer'), new Timer.State(stateProps(pathTo('GameTimer')).period(180).interval(1).endAction(GameTimer_endAction).props))
+    const StopGame = _state.setObject(pathTo('StopGame'), React.useCallback(wrapFn(pathTo('StopGame'), 'calculation', async () => {
+        await GameTimer.Stop()
+        await EndGame()
+    }), [GameTimer, EndGame]))
+    const ContinueGame = _state.setObject(pathTo('ContinueGame'), React.useCallback(wrapFn(pathTo('ContinueGame'), 'calculation', async () => {
+        Set(Status, 'Playing')
+        await GameTimer.Start()
+    }), [Status, GameTimer]))
+    const PauseGame = _state.setObject(pathTo('PauseGame'), React.useCallback(wrapFn(pathTo('PauseGame'), 'calculation', async () => {
+        Set(Status, 'Paused')
+        await GameTimer.Stop()
+    }), [Status, GameTimer]))
+    const StartNewGame = _state.setObject(pathTo('StartNewGame'), React.useCallback(wrapFn(pathTo('StartNewGame'), 'calculation', async () => {
+        Reset(Score)
+        Reset(GameTimer)
+        Set(Status, 'Playing')
+        await StartNewRound()
+        await GameTimer.Start()
+    }), [Score, GameTimer, Status, StartNewRound]))
     const WhenRoundComplete_whenTrueAction = React.useCallback(wrapFn(pathTo('WhenRoundComplete'), 'whenTrueAction', async () => {
         await EndRound()
     }), [EndRound])
@@ -189,6 +196,7 @@ function MainPage(props) {
         React.createElement(Calculation, elProps(pathTo('IsRoundFailed')).show(false).props),
         React.createElement(Calculation, elProps(pathTo('IsRoundWon')).show(false).props),
         React.createElement(Data, elProps(pathTo('RoundSkipped')).display(false).props),
+        React.createElement(Data, elProps(pathTo('RoundScoreAdded')).display(false).props),
         React.createElement(Data, elProps(pathTo('Score')).display(false).props),
         React.createElement(Data, elProps(pathTo('Status')).display(false).props),
         React.createElement(TextElement, elProps(pathTo('Title')).styles(elProps(pathTo('Title.Styles')).fontSize(Min(24, AppWidth()/20)+'px').fontFamily('Impact').color('Orange').letterSpacing('2px').props).content('Photo Jigsaw').props),
